@@ -1,0 +1,70 @@
+# Arquivos de bytecode e cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ambientes virtuais
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Configurações do IDE/editor
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Logs e temporários
+*.log
+*.tmp
+*.swp
+*.bak
+*.pid
+
+# Arquivos de build/distribuição
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+*.manifest
+*.spec
+
+# Testes e cobertura
+.coverage
+.tox/
+.nox/
+.pytest_cache/
+htmlcov/
+coverage.xml
+nosetests.xml
+test-results/
+
+# Dados sensíveis ou locais
+*.env
+*.ini
+*.cfg
+*.json
+
+# Documentação gerada
+docs/_build/
+site/
+
+# Cache de ferramentas
+.mypy_cache/
+.pyre/
+.pytype/
+.dmypy.json
+.cache/
+
+# Notebooks e relatórios
+.ipynb_checkpoints
+*.ipynb~
+
+# Sistemas operacionais
+.DS_Store
+Thumbs.db

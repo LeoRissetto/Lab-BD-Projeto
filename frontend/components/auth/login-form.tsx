@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -26,10 +27,8 @@ type LoginValues = z.infer<typeof loginSchema>;
 
 export function LoginForm() {
   const supabase = useSupabaseBrowserClient();
-  const [feedback, setFeedback] = useState<{
-    type: "success" | "error";
-    message: string;
-  } | null>(null);
+  const router = useRouter();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<LoginValues>({
@@ -42,20 +41,19 @@ export function LoginForm() {
 
   const onSubmit = async (values: LoginValues) => {
     setIsSubmitting(true);
-    setFeedback(null);
+    setErrorMessage(null);
 
     const { error } = await supabase.auth.signInWithPassword(values);
 
     if (error) {
-      setFeedback({ type: "error", message: error.message });
-    } else {
-      setFeedback({
-        type: "success",
-        message: "Login realizado! Você já pode continuar a navegação.",
-      });
+      setErrorMessage(error.message);
+      setIsSubmitting(false);
+      return;
     }
 
     setIsSubmitting(false);
+    router.push("/dashboard");
+    router.refresh();
   };
 
   return (
@@ -108,14 +106,8 @@ export function LoginForm() {
           {isSubmitting ? "Entrando..." : "Entrar"}
         </Button>
 
-        {feedback ? (
-          <p
-            className={`text-sm ${
-              feedback.type === "error" ? "text-destructive" : "text-primary/90"
-            }`}
-          >
-            {feedback.message}
-          </p>
+        {errorMessage ? (
+          <p className="text-sm text-destructive">{errorMessage}</p>
         ) : null}
       </form>
     </Form>

@@ -1,0 +1,29 @@
+# Arquivos de sistema macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Arquivos de ícone e metadados
+Icon?
+._*
+
+# Pastas de rede e temporários
+.Spotlight-V100
+.Trashes
+.fseventsd
+.TemporaryItems
+.VolumeIcon.icns
+
+# Arquivos de sincronização de Time Machine
+.BackupDB
+.MobileBackups
+
+# Arquivos de montagem de disco
+.DiskImage
+
+# Arquivos de metadados de recursos estendidos
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
