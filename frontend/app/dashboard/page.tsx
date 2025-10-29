@@ -103,10 +103,10 @@ async function fetchQueries(): Promise<QueryDetail[]> {
 export default async function DashboardPage() {
   const supabase = await createSupabaseServerClient();
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session) {
+  if (!user) {
     redirect("/login");
   }
 
@@ -131,16 +131,13 @@ export default async function DashboardPage() {
   const doacoesRollup = queryMap["doacoes_rollup"]?.rows ?? [];
   const gastosCube = queryMap["gastos_cube"]?.rows ?? [];
   const rankingGatos = queryMap["ranking_gatos"]?.rows ?? [];
-  const mediaMovelDoacoes =
-    queryMap["media_movel_doacoes"]?.rows ?? [];
+  const mediaMovelDoacoes = queryMap["media_movel_doacoes"]?.rows ?? [];
   const laresOcupacaoRows = queryMap["lar_ocupacao"]?.rows ?? [];
-  const voluntariosFuncoes =
-    queryMap["voluntarios_funcoes"]?.rows ?? [];
+  const voluntariosFuncoes = queryMap["voluntarios_funcoes"]?.rows ?? [];
   const eventosAgenda = queryMap["eventos_agenda"]?.rows ?? [];
   const procedimentosVeterinarios =
     queryMap["procedimentos_veterinarios"]?.rows ?? [];
-  const triagensPendentesRows =
-    queryMap["triagens_pendentes"]?.rows ?? [];
+  const triagensPendentesRows = queryMap["triagens_pendentes"]?.rows ?? [];
   const triggers = queryMap["lista_triggers"]?.rows ?? [];
   const views = queryMap["visoes_e_materializacoes"]?.rows ?? [];
   const conexoes = queryMap["conexoes_ativas"]?.rows ?? [];
@@ -153,8 +150,7 @@ export default async function DashboardPage() {
       return false;
     }
 
-    const diffInDays =
-      (Date.now() - data.getTime()) / (1000 * 60 * 60 * 24);
+    const diffInDays = (Date.now() - data.getTime()) / (1000 * 60 * 60 * 24);
     return diffInDays <= 30;
   });
 
@@ -187,15 +183,14 @@ export default async function DashboardPage() {
 
   const totalDoacoesUltimoMes = (() => {
     const ultimo = doacoesUltimosSeisMeses.at(-1);
-    return ultimo ? toNumber(ultimo.total_doado) ?? 0 : 0;
+    return ultimo ? (toNumber(ultimo.total_doado) ?? 0) : 0;
   })();
 
   const totalGastosRegistrados =
     toNumber(
       gastosCube.find(
         (row) =>
-          row.estado === "TODOS OS ESTADOS" &&
-          row.tipo === "TODOS OS TIPOS",
+          row.estado === "TODOS OS ESTADOS" && row.tipo === "TODOS OS TIPOS",
       )?.total_gasto,
     ) ?? 0;
 
@@ -213,15 +208,13 @@ export default async function DashboardPage() {
     .sort((a, b) => b.total - a.total)
     .slice(0, 5);
 
-  const gatosPrioritarios = rankingGatos
-    .slice(0, 5)
-    .map((row) => ({
-      id: row.id,
-      nome: row.nome,
-      idade: toNumber(row.idade),
-      ranking: toNumber(row.ranking_por_idade),
-      prioridade: toNumber(row.prioridade_resgate),
-    }));
+  const gatosPrioritarios = rankingGatos.slice(0, 5).map((row) => ({
+    id: row.id,
+    nome: row.nome,
+    idade: toNumber(row.idade),
+    ranking: toNumber(row.ranking_por_idade),
+    prioridade: toNumber(row.prioridade_resgate),
+  }));
 
   const mediaMovelUltimosMeses = mediaMovelDoacoes
     .map((row) => ({
@@ -229,10 +222,7 @@ export default async function DashboardPage() {
       media: toNumber(row.media_movel_3m) ?? 0,
       total: toNumber(row.total_mes) ?? 0,
     }))
-    .filter(
-      (row) =>
-        typeof row.mes === "string" && row.mes !== "TOTAL",
-    )
+    .filter((row) => typeof row.mes === "string" && row.mes !== "TOTAL")
     .slice(-6);
 
   const laresOcupacao = laresOcupacaoRows.map((row) => ({
@@ -392,9 +382,7 @@ export default async function DashboardPage() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="text-sm text-muted-foreground">
               Sessão ativa:{" "}
-              <span className="font-medium text-foreground">
-                {session.user.email}
-              </span>
+              <span className="font-medium text-foreground">{user.email}</span>
             </div>
             <form action={logout}>
               <Button type="submit" variant="destructive">
@@ -425,10 +413,7 @@ export default async function DashboardPage() {
           <>
             <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {stats.map((stat) => (
-                <Card
-                  key={stat.label}
-                  className="border-border/70 bg-card/80"
-                >
+                <Card key={stat.label} className="border-border/70 bg-card/80">
                   <CardHeader className="pb-3">
                     <CardDescription>{stat.label}</CardDescription>
                     <CardTitle className="text-3xl font-semibold text-foreground">
@@ -458,21 +443,13 @@ export default async function DashboardPage() {
                       <table className="w-full min-w-[28rem] border-collapse text-left text-sm">
                         <thead className="bg-muted/60 text-foreground/80">
                           <tr>
-                            <th className="px-4 py-2 font-medium">
-                              Lar
-                            </th>
+                            <th className="px-4 py-2 font-medium">Lar</th>
                             <th className="px-4 py-2 font-medium">
                               Capacidade
                             </th>
-                            <th className="px-4 py-2 font-medium">
-                              Hóspedes
-                            </th>
-                            <th className="px-4 py-2 font-medium">
-                              Vagas
-                            </th>
-                            <th className="px-4 py-2 font-medium">
-                              Ocupação
-                            </th>
+                            <th className="px-4 py-2 font-medium">Hóspedes</th>
+                            <th className="px-4 py-2 font-medium">Vagas</th>
+                            <th className="px-4 py-2 font-medium">Ocupação</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -495,17 +472,13 @@ export default async function DashboardPage() {
                                   : "—"}
                               </td>
                               <td className="px-4 py-2">
-                                {numberFormatter.format(
-                                  lar.hospedados ?? 0,
-                                )}
+                                {numberFormatter.format(lar.hospedados ?? 0)}
                               </td>
                               <td className="px-4 py-2">
                                 {numberFormatter.format(lar.vagas ?? 0)}
                               </td>
                               <td className="px-4 py-2">
-                                {lar.taxa !== null
-                                  ? `${lar.taxa}%`
-                                  : "—"}
+                                {lar.taxa !== null ? `${lar.taxa}%` : "—"}
                               </td>
                             </tr>
                           ))}
@@ -665,12 +638,8 @@ export default async function DashboardPage() {
                       <table className="w-full min-w-[24rem] border-collapse text-left text-sm">
                         <thead className="bg-muted/60 text-foreground/80">
                           <tr>
-                            <th className="px-4 py-2 font-medium">
-                              Mês
-                            </th>
-                            <th className="px-4 py-2 font-medium">
-                              Total
-                            </th>
+                            <th className="px-4 py-2 font-medium">Mês</th>
+                            <th className="px-4 py-2 font-medium">Total</th>
                             <th className="px-4 py-2 font-medium">
                               Média móvel (3m)
                             </th>
@@ -842,12 +811,8 @@ export default async function DashboardPage() {
                           <th className="px-4 py-2 font-medium">
                             Tipo de procedimento
                           </th>
-                          <th className="px-4 py-2 font-medium">
-                            Total
-                          </th>
-                          <th className="px-4 py-2 font-medium">
-                            Custo total
-                          </th>
+                          <th className="px-4 py-2 font-medium">Total</th>
+                          <th className="px-4 py-2 font-medium">Custo total</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -930,9 +895,13 @@ export default async function DashboardPage() {
                 </CardHeader>
                 <CardFooter>
                   <div className="grid gap-2 text-xs text-muted-foreground">
-                    <p>✓ DDL e modelagem normalizada (endereços, pessoas, gatos)</p>
+                    <p>
+                      ✓ DDL e modelagem normalizada (endereços, pessoas, gatos)
+                    </p>
                     <p>✓ DML com junções, filtros e ordenações</p>
-                    <p>✓ Aggregations avançadas (ROLLUP, CUBE, window functions)</p>
+                    <p>
+                      ✓ Aggregations avançadas (ROLLUP, CUBE, window functions)
+                    </p>
                     <p>✓ PL/pgSQL (funções, procedures) e triggers</p>
                     <p>✓ Visões, materializações e consulta ao catálogo</p>
                     <p>✓ Controle de concorrência, transações e segurança</p>
