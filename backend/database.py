@@ -12,23 +12,31 @@ load_dotenv()
 SUPABASE_DB_URL = os.getenv("SUPABASE_DB_URL")
 
 if not SUPABASE_DB_URL:
-    raise RuntimeError(
-        "SUPABASE_DB_URL deve estar definido para executar consultas SQL diretas.",
-    )
+    raise RuntimeError("SUPABASE_DB_URL must be set.")
 
-pool = ConnectionPool(conninfo=SUPABASE_DB_URL, kwargs={"autocommit": True}, max_size=5)
+pool = ConnectionPool(
+    conninfo=SUPABASE_DB_URL,
+    kwargs={
+        "autocommit": True,
+        "prepare_threshold": None  # impede prepared statements
+    },
+    max_size=5
+)
+
 
 
 @contextmanager
 def get_conn():
+    # pool.connection() retorna um **PSYCOPG Connection**, que aceita prepare_threshold
     with pool.connection() as conn:
+        # prepare_threshold precisa ser None para desativar prepared statements automáticos
+        conn.prepare_threshold = None
         conn.row_factory = dict_row
         yield conn
 
 
-def fetch_all(query: str, params: dict | tuple | None = None) -> list[dict]:
+def fetch_all(query: str, params=None) -> list[dict]:
     with get_conn() as conn:
         with conn.cursor() as cur:
             cur.execute(query, params)
-            rows = cur.fetchall()
-    return rows
+            return cur.fetchall()

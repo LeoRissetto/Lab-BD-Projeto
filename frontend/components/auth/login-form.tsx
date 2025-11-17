@@ -52,7 +52,7 @@ export function LoginForm() {
     }
 
     setIsSubmitting(false);
-    router.push("/dashboard");
+    router.push("/admin/dashboard");
     router.refresh();
   };
 
