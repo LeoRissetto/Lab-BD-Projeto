@@ -19,6 +19,11 @@ type Gato = {
   condicao_saude: string | null;
 };
 
+type EnderecoOption = {
+  id: number;
+  descricao: string;
+};
+
 const emptyForm: GatoFormValues = {
   nome: "",
   idade: "",
@@ -38,9 +43,11 @@ export default function AdminGatosPage() {
   const [editing, setEditing] = useState<Gato | null>(null);
   const [form, setForm] = useState<GatoFormValues>(emptyForm);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [enderecos, setEnderecos] = useState<EnderecoOption[]>([]);
 
   useEffect(() => {
     fetchGatos();
+    fetchEnderecos();
   }, []);
 
   async function fetchGatos() {
@@ -53,6 +60,15 @@ export default function AdminGatosPage() {
       setError(getApiErrorMessage(err, "Erro ao listar gatos"));
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function fetchEnderecos() {
+    try {
+      const { data } = await api.get<EnderecoOption[]>("/gatos/enderecos");
+      setEnderecos(data);
+    } catch (err) {
+      setError(getApiErrorMessage(err, "Erro ao listar endereços"));
     }
   }
 
@@ -205,6 +221,7 @@ export default function AdminGatosPage() {
           onOpenChange={setModalOpen}
           title={editing ? "Editar gato" : "Novo gato"}
           form={form}
+          enderecos={enderecos}
           loading={saving}
           onChange={handleChange}
           onSubmit={handleSubmit}

@@ -16,6 +16,20 @@ type Adocao = {
   motivo: string | null;
 };
 
+type GatoDisponivel = {
+  id: number;
+  nome: string;
+  raca: string | null;
+};
+
+type AdotanteOption = {
+  cpf: string;
+  nome: string;
+  email: string | null;
+  telefone: string | null;
+  procurando_gato: boolean;
+};
+
 type FormState = {
   gato_id: string;
   adotante_cpf: string;
@@ -32,6 +46,8 @@ const emptyForm: FormState = {
 
 export default function AdminAdocoesPage() {
   const [adocoes, setAdocoes] = useState<Adocao[]>([]);
+  const [gatosDisponiveis, setGatosDisponiveis] = useState<GatoDisponivel[]>([]);
+  const [adotantes, setAdotantes] = useState<AdotanteOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
@@ -39,6 +55,8 @@ export default function AdminAdocoesPage() {
 
   useEffect(() => {
     fetchAdocoes();
+    fetchGatosDisponiveis();
+    fetchAdotantes();
   }, []);
 
   async function fetchAdocoes() {
@@ -51,6 +69,24 @@ export default function AdminAdocoesPage() {
       setError(getApiErrorMessage(err, "Erro ao listar adoções"));
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function fetchGatosDisponiveis() {
+    try {
+      const { data } = await api.get<{ rows: GatoDisponivel[] }>("/queries/gatos_disponiveis");
+      setGatosDisponiveis(data.rows);
+    } catch (err) {
+      setError(getApiErrorMessage(err, "Erro ao listar gatos disponíveis"));
+    }
+  }
+
+  async function fetchAdotantes() {
+    try {
+      const { data } = await api.get<AdotanteOption[]>("/adocoes/adotantes");
+      setAdotantes(data);
+    } catch (err) {
+      setError(getApiErrorMessage(err, "Erro ao listar adotantes"));
     }
   }
 
@@ -147,24 +183,61 @@ export default function AdminAdocoesPage() {
           </p>
 
           <form className="mt-4 space-y-3" onSubmit={handleSubmit}>
-            <label className="text-sm font-medium text-muted-foreground">
-              Gato (ID)
-              <Input
-                type="number"
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between gap-3">
+                <label className="text-sm font-medium text-muted-foreground">Gato disponível</label>
+                <button
+                  type="button"
+                  className="text-[11px] font-semibold text-primary underline underline-offset-4"
+                  onClick={fetchGatosDisponiveis}
+                  disabled={submitting}
+                >
+                  Atualizar
+                </button>
+              </div>
+              <select
                 required
-                min="1"
+                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
                 value={form.gato_id}
                 onChange={(e) => handleChange("gato_id", e.target.value)}
-              />
-            </label>
+              >
+                <option value="">Selecione um gato</option>
+                {gatosDisponiveis.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    #{g.id} — {g.nome} {g.raca ? `(${g.raca})` : ""}
+                  </option>
+                ))}
+              </select>
+              {form.gato_id === "" ? (
+                <p className="text-xs text-muted-foreground">Mostra apenas gatos não adotados.</p>
+              ) : null}
+            </div>
 
             <label className="text-sm font-medium text-muted-foreground">
-              CPF do adotante
-              <Input
+              <div className="flex items-center justify-between gap-3">
+                <span>Adotante</span>
+                <button
+                  type="button"
+                  className="text-[11px] font-semibold text-primary underline underline-offset-4"
+                  onClick={fetchAdotantes}
+                  disabled={submitting}
+                >
+                  Atualizar
+                </button>
+              </div>
+              <select
                 required
+                className="mt-1 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
                 value={form.adotante_cpf}
                 onChange={(e) => handleChange("adotante_cpf", e.target.value)}
-              />
+              >
+                <option value="">Selecione um adotante</option>
+                {adotantes.map((a) => (
+                  <option key={a.cpf} value={a.cpf}>
+                    {a.nome} — CPF {a.cpf} {a.procurando_gato ? "(procurando)" : ""}
+                  </option>
+                ))}
+              </select>
             </label>
 
             <label className="text-sm font-medium text-muted-foreground">

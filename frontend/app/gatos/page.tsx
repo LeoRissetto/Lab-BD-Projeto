@@ -3,8 +3,22 @@
 import Link from "next/link";
 import { CalendarClock, MapPin, Palette, PawPrint, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
 import { api, getApiErrorMessage } from "@/lib/api";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Modal } from "@/components/ui/modal";
 
 type GatoPublic = {
   id: number;
@@ -20,10 +34,50 @@ type QueryResponse = {
   rows: GatoPublic[];
 };
 
+const interesseSchema = z.object({
+  cpf: z
+    .string()
+    .min(11, "CPF deve ter 11 dígitos")
+    .max(11, "CPF deve ter 11 dígitos")
+    .regex(/^\d+$/, "Use apenas números"),
+  nome: z.string().min(2, "Informe seu nome completo"),
+  email: z.string().email("Informe um e-mail válido"),
+  telefone: z
+    .string()
+    .min(8, "Inclua um telefone para contato")
+    .max(20, "Telefone muito longo"),
+  mensagem: z
+    .string()
+    .min(10, "Conte um pouco sobre você e sua rotina")
+    .max(500, "Deixe sua mensagem mais curta"),
+  fotoUrlsRaw: z.string().min(5, "Inclua pelo menos uma URL de foto"),
+});
+
+type InteresseForm = z.infer<typeof interesseSchema>;
+
 export default function GatosPublicPage() {
   const [gatos, setGatos] = useState<GatoPublic[]>([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
+  const [interestModalOpen, setInterestModalOpen] = useState(false);
+  const [selectedGato, setSelectedGato] = useState<GatoPublic | null>(null);
+  const [feedback, setFeedback] = useState<{
+    status: "success" | "error";
+    message: string;
+  } | null>(null);
+  const [submittingInterest, setSubmittingInterest] = useState(false);
+
+  const form = useForm<InteresseForm>({
+    resolver: zodResolver(interesseSchema),
+    defaultValues: {
+      cpf: "",
+      nome: "",
+      email: "",
+      telefone: "",
+      mensagem: "",
+      fotoUrlsRaw: "",
+    },
+  });
 
   useEffect(() => {
     async function load() {
@@ -39,8 +93,235 @@ export default function GatosPublicPage() {
     load();
   }, []);
 
+  useEffect(() => {
+    if (selectedGato) {
+      form.reset({
+        cpf: "",
+        nome: "",
+        email: "",
+        telefone: "",
+        mensagem: `Olá! Tenho interesse em conhecer o ${selectedGato.nome}.`,
+        fotoUrlsRaw: "",
+      });
+      setFeedback(null);
+    }
+  }, [selectedGato, form]);
+
+  function handleOpenInterest(gato: GatoPublic) {
+    setSelectedGato(gato);
+    setInterestModalOpen(true);
+  }
+
+  function handleModalChange(open: boolean) {
+    setInterestModalOpen(open);
+
+    if (!open) {
+      setSelectedGato(null);
+      setFeedback(null);
+      form.reset({
+        cpf: "",
+        nome: "",
+        email: "",
+        telefone: "",
+        mensagem: "",
+        fotoUrlsRaw: "",
+      });
+    }
+  }
+
+  async function onSubmit(values: InteresseForm) {
+    setSubmittingInterest(true);
+    setFeedback(null);
+
+    const fotoUrls = values.fotoUrlsRaw
+      .split(/\n|,/)
+      .map((url) => url.trim())
+      .filter(Boolean);
+
+    if (fotoUrls.length === 0) {
+      setFeedback({
+        status: "error",
+        message: "Inclua ao menos uma URL de foto para a triagem.",
+      });
+      setSubmittingInterest(false);
+      return;
+    }
+
+    const payload = {
+      cpf: values.cpf,
+      nome: values.nome,
+      email: values.email,
+      telefone: values.telefone,
+      mensagem: values.mensagem,
+      gatoId: selectedGato?.id ?? null,
+      fotoUrls,
+    };
+
+    try {
+      const { data } = await api.post("/interesses", payload);
+      setFeedback({
+        status: "success",
+        message: "Dados enviados e fotos registradas.",
+      });
+    } catch (error) {
+      setFeedback({
+        status: "error",
+        message: getApiErrorMessage(error, "Não conseguimos enviar agora. Tente novamente em instantes."),
+      });
+    } finally {
+      setSubmittingInterest(false);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-transparent via-white/40 to-transparent">
+      <Modal
+        open={interestModalOpen}
+        onOpenChange={handleModalChange}
+        title="Tenho interesse em adotar"
+        description="Preencha seus dados para combinarmos a entrevista e a visita supervisionada."
+      >
+        {selectedGato ? (
+          <div className="rounded-xl border border-white/60 bg-white/70 px-4 py-3 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-muted-foreground">
+              Gato selecionado
+            </p>
+            <div className="mt-2 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-base font-semibold text-foreground">{selectedGato.nome}</p>
+                <p className="text-sm text-muted-foreground">
+                  {selectedGato.raca || "SRD"} •{" "}
+                  {selectedGato.idade != null ? `${selectedGato.idade} anos` : "idade não informada"}
+                </p>
+              </div>
+              {selectedGato.cor ? (
+                <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                  {selectedGato.cor}
+                </span>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
+
+        <Form {...form}>
+          <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="nome"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Seu nome</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Nome completo" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>E-mail</FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="seuemail@email.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="cpf"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>CPF do adotante</FormLabel>
+                  <FormControl>
+                    <Input inputMode="numeric" maxLength={11} placeholder="Somente números" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="telefone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Telefone / WhatsApp</FormLabel>
+                  <FormControl>
+                    <Input type="tel" placeholder="(11) 99999-9999" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="mensagem"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Mensagem para a equipe</FormLabel>
+                  <FormControl>
+                    <textarea
+                      rows={4}
+                      className="min-h-[110px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm text-foreground shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
+                      placeholder="Conte sobre sua rotina e preparação para receber o peludo :)"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="fotoUrlsRaw"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>URLs das fotos da triagem</FormLabel>
+                  <FormControl>
+                    <textarea
+                      rows={3}
+                      className="min-h-[90px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm text-foreground shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
+                      placeholder="Cole aqui uma ou mais URLs (separe por linha ou vírgula)"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+              <p className="text-xs text-muted-foreground">
+                Seus dados ficam seguros e serão usados apenas para esta conversa.
+              </p>
+              <Button type="submit" disabled={submittingInterest} className="min-w-[160px]">
+                {submittingInterest ? "Enviando..." : "Enviar interesse"}
+              </Button>
+            </div>
+
+            {feedback ? (
+              <p
+                className={
+                  feedback.status === "success" ? "text-sm text-emerald-600" : "text-sm text-destructive"
+                }
+              >
+                {feedback.message}
+              </p>
+            ) : null}
+          </form>
+        </Form>
+      </Modal>
+
       <header className="relative overflow-hidden border-b border-transparent bg-gradient-to-br from-[#ff7ab6] via-[#ffa69e] to-[#6fe4cf] text-white shadow-lg">
         <div className="absolute inset-0 opacity-30">
           <div className="h-full w-full bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.6),_transparent_60%)]" />
@@ -133,7 +414,11 @@ export default function GatosPublicPage() {
                     </div>
                   </div>
 
-                  <button className="mt-6 inline-flex items-center justify-center gap-2 rounded-full bg-primary/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-primary-foreground shadow-lg shadow-primary/30 transition hover:bg-primary">
+                  <button
+                    type="button"
+                    onClick={() => handleOpenInterest(g)}
+                    className="mt-6 inline-flex items-center justify-center gap-2 rounded-full bg-primary/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-primary-foreground shadow-lg shadow-primary/30 transition hover:bg-primary"
+                  >
                     <PawPrint className="h-4 w-4" />
                     Tenho interesse
                   </button>

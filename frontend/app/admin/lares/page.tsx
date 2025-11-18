@@ -22,6 +22,11 @@ type FormState = {
   responsavel_cpf: string;
 };
 
+type EnderecoOption = {
+  id: number;
+  descricao: string;
+};
+
 const emptyForm: FormState = {
   endereco_id: "",
   capacidade_maxima: "",
@@ -35,9 +40,11 @@ export default function AdminLaresPage() {
   const [form, setForm] = useState(emptyForm);
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [enderecos, setEnderecos] = useState<EnderecoOption[]>([]);
 
   useEffect(() => {
     fetchLares();
+    fetchEnderecos();
   }, []);
 
   async function fetchLares() {
@@ -50,6 +57,15 @@ export default function AdminLaresPage() {
       setError(getApiErrorMessage(err, "Erro ao carregar lares"));
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function fetchEnderecos() {
+    try {
+      const { data } = await api.get<EnderecoOption[]>("/lares/enderecos");
+      setEnderecos(data);
+    } catch (err) {
+      setError(getApiErrorMessage(err, "Erro ao listar endereços"));
     }
   }
 
@@ -170,16 +186,32 @@ export default function AdminLaresPage() {
           </p>
 
           <form className="mt-4 space-y-3" onSubmit={handleSubmit}>
-            <label className="text-sm font-medium text-muted-foreground">
-              Endereço (ID)
-              <Input
-                type="number"
-                min="1"
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between gap-3">
+                <label className="text-sm font-medium text-muted-foreground">Endereço</label>
+                <button
+                  type="button"
+                  className="text-[11px] font-semibold text-primary underline underline-offset-4"
+                  onClick={fetchEnderecos}
+                  disabled={submitting}
+                >
+                  Atualizar
+                </button>
+              </div>
+              <select
                 required
+                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
                 value={form.endereco_id}
                 onChange={(e) => handleChange("endereco_id", e.target.value)}
-              />
-            </label>
+              >
+                <option value="">Selecione um endereço</option>
+                {enderecos.map((end) => (
+                  <option key={end.id} value={end.id}>
+                    #{end.id} — {end.descricao}
+                  </option>
+                ))}
+              </select>
+            </div>
 
             <label className="text-sm font-medium text-muted-foreground">
               Capacidade máxima

@@ -26,6 +26,12 @@ type FormState = {
   descricao: string;
 };
 
+type LarOption = {
+  id: number;
+  cidade: string | null;
+  estado: string | null;
+};
+
 const emptyForm: FormState = {
   lar_id: "",
   tipo: "",
@@ -41,9 +47,11 @@ export default function AdminGastosPage() {
   const [form, setForm] = useState(emptyForm);
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [lares, setLares] = useState<LarOption[]>([]);
 
   useEffect(() => {
     fetchGastos();
+    fetchLaresOptions();
   }, []);
 
   async function fetchGastos() {
@@ -56,6 +64,15 @@ export default function AdminGastosPage() {
       setError(getApiErrorMessage(err, "Erro ao carregar gastos"));
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function fetchLaresOptions() {
+    try {
+      const { data } = await api.get<LarOption[]>("/lares");
+      setLares(data);
+    } catch (err) {
+      setError(getApiErrorMessage(err, "Erro ao listar lares"));
     }
   }
 
@@ -189,15 +206,31 @@ export default function AdminGastosPage() {
           </p>
 
           <form className="mt-4 space-y-3" onSubmit={handleSubmit}>
-            <label className="text-sm font-medium text-muted-foreground">
-              Lar (ID)
-              <Input
-                type="number"
-                min="0"
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between gap-3">
+                <label className="text-sm font-medium text-muted-foreground">Lar</label>
+                <button
+                  type="button"
+                  className="text-[11px] font-semibold text-primary underline underline-offset-4"
+                  onClick={fetchLaresOptions}
+                  disabled={submitting}
+                >
+                  Atualizar
+                </button>
+              </div>
+              <select
+                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
                 value={form.lar_id}
                 onChange={(e) => handleChange("lar_id", e.target.value)}
-              />
-            </label>
+              >
+                <option value="">Sem vínculo</option>
+                {lares.map((lar) => (
+                  <option key={lar.id} value={lar.id}>
+                    #{lar.id} { [lar.cidade, lar.estado].filter(Boolean).join(" - ") }
+                  </option>
+                ))}
+              </select>
+            </div>
 
             <label className="text-sm font-medium text-muted-foreground">
               Tipo

@@ -46,6 +46,21 @@ def adocoes_por_adotante(cpf: str):
     return fetch_all(sql, (cpf,))
 
 
+@router.get("/adotantes")
+def listar_adotantes():
+    sql = """
+        SELECT a.cpf,
+               p.nome,
+               p.email,
+               p.telefone,
+               a.procurando_gato
+          FROM adotante a
+          JOIN pessoa p ON p.cpf = a.cpf
+      ORDER BY p.nome;
+    """
+    return fetch_all(sql)
+
+
 @router.post("/registrar")
 def registrar_adocao(data: RegistrarAdocaoDTO):
     """

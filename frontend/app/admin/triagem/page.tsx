@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Modal } from "@/components/ui/modal";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { api, getApiErrorMessage } from "@/lib/api";
 
@@ -13,6 +14,14 @@ type Triagem = {
   data: string;
   resultado: string | null;
   responsavel: string;
+};
+
+type AdotantePendente = {
+  cpf: string;
+  nome: string;
+  email: string | null;
+  telefone: string | null;
+  fotos: number;
 };
 
 type FormState = {
@@ -31,13 +40,31 @@ const emptyForm: FormState = {
 
 export default function AdminTriagemPage() {
   const [triagens, setTriagens] = useState<Triagem[]>([]);
+  const [pendentes, setPendentes] = useState<AdotantePendente[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingPendentes, setLoadingPendentes] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [submitting, setSubmitting] = useState(false);
+  const [fotosModal, setFotosModal] = useState<{
+    open: boolean;
+    cpf: string | null;
+    nome: string | null;
+    urls: string[];
+    loading: boolean;
+    error: string | null;
+  }>({
+    open: false,
+    cpf: null,
+    nome: null,
+    urls: [],
+    loading: false,
+    error: null,
+  });
 
   useEffect(() => {
     fetchTriagens();
+    fetchPendentes();
   }, []);
 
   async function fetchTriagens() {
@@ -50,6 +77,18 @@ export default function AdminTriagemPage() {
       setError(getApiErrorMessage(err, "Erro ao listar triagens"));
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function fetchPendentes() {
+    setLoadingPendentes(true);
+    try {
+      const { data } = await api.get<AdotantePendente[]>("/triagem/pendentes");
+      setPendentes(data);
+    } catch (err) {
+      setError(getApiErrorMessage(err, "Erro ao listar adotantes pendentes"));
+    } finally {
+      setLoadingPendentes(false);
     }
   }
 
@@ -70,10 +109,32 @@ export default function AdminTriagemPage() {
       });
       setForm(emptyForm);
       await fetchTriagens();
+      await fetchPendentes();
     } catch (err) {
       setError(getApiErrorMessage(err, "Falha ao registrar triagem"));
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  async function abrirFotos(cpf: string, nome: string) {
+    setFotosModal({
+      open: true,
+      cpf,
+      nome,
+      urls: [],
+      loading: true,
+      error: null,
+    });
+    try {
+      const { data } = await api.get<{ foto_url: string }[]>(`/triagem/${cpf}/fotos`);
+      setFotosModal((prev) => ({ ...prev, urls: data.map((i) => i.foto_url) || [], loading: false }));
+    } catch (err) {
+      setFotosModal((prev) => ({
+        ...prev,
+        loading: false,
+        error: getApiErrorMessage(err, "Erro ao carregar fotos"),
+      }));
     }
   }
 
@@ -141,14 +202,59 @@ export default function AdminTriagemPage() {
           </p>
 
           <form className="mt-4 space-y-3" onSubmit={handleSubmit}>
-            <label className="text-sm font-medium text-muted-foreground">
-              CPF do adotante
-              <Input
-                required
-                value={form.adotante_cpf}
-                onChange={(e) => handleChange("adotante_cpf", e.target.value)}
-              />
-            </label>
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between gap-3">
+                <label className="text-sm font-medium text-muted-foreground">Adotante pendente</label>
+                {loadingPendentes ? (
+                  <span className="text-[11px] text-muted-foreground">carregando…</span>
+                ) : (
+                  <button
+                    type="button"
+                    className="text-[11px] font-semibold text-primary underline underline-offset-4"
+                    onClick={fetchPendentes}
+                  >
+                    Atualizar lista
+                  </button>
+                )}
+              </div>
+              <div className="flex flex-col gap-2">
+                <select
+                  required
+                  className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
+                  value={form.adotante_cpf}
+                  onChange={(e) => handleChange("adotante_cpf", e.target.value)}
+                >
+                  <option value="">Selecione um adotante</option>
+                  {pendentes.map((p) => (
+                    <option key={p.cpf} value={p.cpf}>
+                      {p.nome} — CPF {p.cpf} {p.fotos ? `(${p.fotos} fotos)` : ""}
+                    </option>
+                  ))}
+                </select>
+                {form.adotante_cpf ? (
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const adotante = pendentes.find((p) => p.cpf === form.adotante_cpf);
+                        abrirFotos(form.adotante_cpf, adotante?.nome || "");
+                      }}
+                      disabled={submitting}
+                    >
+                      Ver fotos enviadas
+                    </Button>
+                    <span>
+                      {pendentes.find((p) => p.cpf === form.adotante_cpf)?.email || "sem e-mail"} •{" "}
+                      {pendentes.find((p) => p.cpf === form.adotante_cpf)?.telefone || "sem telefone"}
+                    </span>
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground">Escolha um adotante pendente para triagem.</p>
+                )}
+              </div>
+            </div>
 
             <label className="text-sm font-medium text-muted-foreground">
               Data
@@ -190,6 +296,40 @@ export default function AdminTriagemPage() {
           </form>
         </div>
       </section>
+
+      <Modal
+        open={fotosModal.open}
+        onOpenChange={(open) =>
+          setFotosModal((prev) => ({
+            ...prev,
+            open,
+          }))
+        }
+        title={fotosModal.nome || "Fotos enviadas"}
+        description={fotosModal.cpf ? `CPF: ${fotosModal.cpf}` : ""}
+      >
+        {fotosModal.loading ? (
+          <p className="text-sm text-muted-foreground">Carregando fotos...</p>
+        ) : fotosModal.error ? (
+          <p className="text-sm text-destructive">{fotosModal.error}</p>
+        ) : fotosModal.urls.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Nenhuma foto enviada para este adotante.</p>
+        ) : (
+          <div className="space-y-2">
+            {fotosModal.urls.map((url) => (
+              <a
+                key={url}
+                href={url}
+                target="_blank"
+                rel="noreferrer"
+                className="block truncate rounded-md border border-input bg-muted/50 px-3 py-2 text-sm text-primary underline-offset-4 hover:underline"
+              >
+                {url}
+              </a>
+            ))}
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

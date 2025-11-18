@@ -29,6 +29,22 @@ def listar_lares():
     return fetch_all(sql)
 
 
+@router.get("/enderecos")
+def listar_enderecos():
+    sql = """
+        SELECT id,
+               CASE
+                 WHEN cidade IS NOT NULL AND estado IS NOT NULL THEN cidade || ' - ' || estado
+                 WHEN cidade IS NOT NULL THEN cidade
+                 WHEN estado IS NOT NULL THEN estado
+                 ELSE 'Endereço #' || id
+               END AS descricao
+          FROM endereco
+      ORDER BY cidade, id;
+    """
+    return fetch_all(sql)
+
+
 @router.get("/ocupacao")
 def ocupacao_lares():
     sql = """

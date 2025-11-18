@@ -16,11 +16,17 @@ export type GatoFormValues = {
   condicao_saude: string;
 };
 
+export type EnderecoOption = {
+  id: number;
+  descricao: string;
+};
+
 type Props = {
   open: boolean;
   title: string;
   loading: boolean;
   form: GatoFormValues;
+  enderecos: EnderecoOption[];
   onOpenChange: (open: boolean) => void;
   onChange: (field: keyof GatoFormValues, value: string) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
@@ -31,6 +37,7 @@ export function GatoModal({
   title,
   loading,
   form,
+  enderecos,
   onOpenChange,
   onChange,
   onSubmit,
@@ -73,13 +80,19 @@ export function GatoModal({
             />
           </label>
           <label className="text-sm font-medium text-muted-foreground">
-            Endereço (ID)
-            <Input
-              type="number"
+            Endereço
+            <select
+              className="mt-1 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
               value={form.endereco_resgate_id}
               onChange={(e) => onChange("endereco_resgate_id", e.target.value)}
-              min="0"
-            />
+            >
+              <option value="">Selecione</option>
+              {enderecos.map((e) => (
+                <option key={e.id} value={e.id}>
+                  #{e.id} — {e.descricao}
+                </option>
+              ))}
+            </select>
           </label>
         </div>
 

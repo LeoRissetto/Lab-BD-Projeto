@@ -23,6 +23,11 @@ type FormState = {
   endereco_id: string;
 };
 
+type EnderecoOption = {
+  id: number;
+  descricao: string;
+};
+
 const emptyForm: FormState = {
   nome: "",
   data_inicio: "",
@@ -37,9 +42,11 @@ export default function AdminEventosPage() {
   const [form, setForm] = useState(emptyForm);
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [enderecos, setEnderecos] = useState<EnderecoOption[]>([]);
 
   useEffect(() => {
     fetchEventos();
+    fetchEnderecos();
   }, []);
 
   async function fetchEventos() {
@@ -52,6 +59,15 @@ export default function AdminEventosPage() {
       setError(getApiErrorMessage(err, "Erro ao carregar eventos"));
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function fetchEnderecos() {
+    try {
+      const { data } = await api.get<EnderecoOption[]>("/gatos/enderecos");
+      setEnderecos(data);
+    } catch (err) {
+      setError(getApiErrorMessage(err, "Erro ao listar endereços"));
     }
   }
 
@@ -191,15 +207,31 @@ export default function AdminEventosPage() {
               />
             </label>
 
-            <label className="text-sm font-medium text-muted-foreground">
-              Endereço (ID)
-              <Input
-                type="number"
-                min="0"
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between gap-3">
+                <label className="text-sm font-medium text-muted-foreground">Endereço</label>
+                <button
+                  type="button"
+                  className="text-[11px] font-semibold text-primary underline underline-offset-4"
+                  onClick={fetchEnderecos}
+                  disabled={submitting}
+                >
+                  Atualizar
+                </button>
+              </div>
+              <select
+                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
                 value={form.endereco_id}
                 onChange={(e) => handleChange("endereco_id", e.target.value)}
-              />
-            </label>
+              >
+                <option value="">Selecione um endereço</option>
+                {enderecos.map((end) => (
+                  <option key={end.id} value={end.id}>
+                    #{end.id} — {end.descricao}
+                  </option>
+                ))}
+              </select>
+            </div>
 
             <Button
               type="submit"
