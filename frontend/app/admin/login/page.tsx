@@ -1,16 +1,16 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { api, ApiUser, getApiErrorMessage } from "@/lib/api";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [login, setLogin] = useState("user@example.com");
-  const [senha, setSenha] = useState("password");
+  const [login, setLogin] = useState("");
+  const [senha, setSenha] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [debugLoading, setDebugLoading] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -30,18 +30,6 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
-  }
-
-  function handleBypass() {
-    setDebugLoading(true);
-    const fakeUser: ApiUser = {
-      userid: -1,
-      login: "debug@localhost",
-      tipo: "Debug",
-    };
-    localStorage.setItem("lt_user", JSON.stringify(fakeUser));
-    window.dispatchEvent(new Event("lt-user-changed"));
-    router.push("/admin/dashboard");
   }
 
   return (
@@ -95,25 +83,15 @@ export default function LoginPage() {
             >
               {loading ? "Entrando..." : "Entrar"}
             </button>
-
-            <button
-              type="button"
-              onClick={handleBypass}
-              disabled={debugLoading}
-              className="w-full rounded-md border border-dashed border-input py-2 text-xs font-semibold text-muted-foreground hover:bg-muted/60 transition disabled:opacity-60"
-            >
-              {debugLoading ? "Carregando painel..." : "Entrar sem autenticação (debug)"}
-            </button>
+            <p className="text-xs text-muted-foreground text-center">
+              Ainda não tem conta? {" "}
+              <Link href="/admin/register" className="text-primary underline-offset-4 hover:underline">
+                Crie uma agora
+              </Link>
+            </p>
           </div>
         </form>
 
-        <p className="mt-4 text-xs text-muted-foreground text-center">
-          Usuário de teste: <code>user@example.com</code> /{" "}
-          <code>password</code>
-        </p>
-        <p className="mt-2 text-[11px] text-center text-muted-foreground">
-          Botão de debug temporário — remova assim que a tabela <code>users</code> estiver criada.
-        </p>
       </div>
     </div>
   );

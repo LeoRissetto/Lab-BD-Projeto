@@ -83,6 +83,7 @@ def atualizar_veterinario(cpf: str, data: AtualizarVeterinarioDTO):
                 (data.especialidade, data.clinica, cpf),
             )
 
+
     return {"status": "veterinário atualizado"}
 
 

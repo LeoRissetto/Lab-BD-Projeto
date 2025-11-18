@@ -42,6 +42,14 @@ type Voluntario = {
   cpf: string;
 };
 
+type LogEntry = {
+  id: number;
+  userid: number;
+  login: string;
+  tipo: string;
+  data_hora: string;
+};
+
 export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -50,19 +58,21 @@ export default function AdminDashboardPage() {
   const [voluntariosAtivos, setVoluntariosAtivos] = useState(0);
   const [lares, setLares] = useState<LarOcupacao[]>([]);
   const [eventos, setEventos] = useState<Evento[]>([]);
+  const [logs, setLogs] = useState<LogEntry[]>([]);
 
   useEffect(() => {
     async function load() {
       setLoading(true);
       setError(null);
       try {
-        const [gatosRes, rollupRes, voluntariosRes, laresRes, eventosRes] =
+        const [gatosRes, rollupRes, voluntariosRes, laresRes, eventosRes, logsRes] =
           await Promise.all([
             api.get<QueryResponse<GatoDisponivel>>("/queries/gatos_disponiveis"),
             api.get<QueryResponse<RollupRow>>("/queries/doacoes_rollup"),
             api.get<Voluntario[]>("/voluntarios"),
             api.get<LarOcupacao[]>("/lares/ocupacao"),
             api.get<Evento[]>("/eventos/proximos"),
+            api.get<LogEntry[]>("/logs/recentes", { params: { limit: 5 } }),
           ]);
 
         setGatosDisponiveis(gatosRes.data.rows.length);
@@ -71,6 +81,7 @@ export default function AdminDashboardPage() {
         setVoluntariosAtivos(voluntariosRes.data.length);
         setLares(laresRes.data);
         setEventos(eventosRes.data);
+        setLogs(logsRes.data);
       } catch (err) {
         setError(getApiErrorMessage(err, "Falha ao carregar painel"));
       } finally {
@@ -183,43 +194,92 @@ export default function AdminDashboardPage() {
               )}
             </div>
 
-            <div className="rounded-2xl border border-border bg-card p-5">
-              <div className="mb-4">
-                <h2 className="text-lg font-semibold">Próximos eventos</h2>
-                <p className="text-sm text-muted-foreground">
-                  Cronograma vindo de /eventos/proximos.
-                </p>
+            <div className="grid gap-4">
+              <div className="rounded-2xl border border-border bg-card p-5">
+                <div className="mb-4">
+                  <h2 className="text-lg font-semibold">Próximos eventos</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Cronograma vindo de /eventos/proximos.
+                  </p>
+                </div>
+
+                {eventos.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    Nenhum evento planejado.
+                  </p>
+                ) : (
+                  <ul className="space-y-4">
+                    {eventos.map((evento) => (
+                      <li
+                        key={evento.id}
+                        className="rounded-xl border border-border/80 px-4 py-3"
+                      >
+                        <p className="font-medium text-foreground">{evento.nome}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatDate(evento.data_inicio)}{" "}
+                          {evento.data_fim ? `até ${formatDate(evento.data_fim)}` : ""}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {[evento.cidade, evento.estado].filter(Boolean).join(" - ") || "Local não informado"}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
 
-              {eventos.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  Nenhum evento planejado.
-                </p>
-              ) : (
-                <ul className="space-y-4">
-                  {eventos.map((evento) => (
-                    <li
-                      key={evento.id}
-                      className="rounded-xl border border-border/80 px-4 py-3"
-                    >
-                      <p className="font-medium text-foreground">{evento.nome}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatDate(evento.data_inicio)}{" "}
-                        {evento.data_fim ? `até ${formatDate(evento.data_fim)}` : ""}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {[evento.cidade, evento.estado].filter(Boolean).join(" - ") || "Local não informado"}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
-              )}
+              <div className="rounded-2xl border border-border bg-card p-5">
+                <div className="mb-4">
+                  <h2 className="text-lg font-semibold">Atividades recentes</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Últimos acessos registrados em log_table.
+                  </p>
+                </div>
+
+                {logs.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Nenhum log encontrado.</p>
+                ) : (
+                  <ul className="space-y-3">
+                    {logs.map((log) => (
+                      <li
+                        key={log.id}
+                        className="rounded-xl border border-border/80 px-4 py-3 text-sm"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium">{log.login}</span>
+                          <span className="text-xs rounded-full border px-2 py-0.5 text-muted-foreground">
+                            {log.tipo}
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {formatDateTime(log.data_hora)}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
           </section>
         </>
       )}
     </div>
   );
+}
+
+function formatDateTime(value: string) {
+  if (!value) return "Data não definida";
+  try {
+    return new Intl.DateTimeFormat("pt-BR", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(new Date(value));
+  } catch {
+    return value;
+  }
 }
 
 function formatDate(value: string | null) {

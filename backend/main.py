@@ -14,6 +14,7 @@ from routers import (
     eventos,
     relatorios,
     health,
+    logs,
 )
 
 app = FastAPI()
@@ -46,6 +47,7 @@ app.include_router(doacoes.router)
 app.include_router(eventos.router)
 app.include_router(relatorios.router)
 app.include_router(health.router)
+app.include_router(logs.router)
 
 
 @app.get("/")

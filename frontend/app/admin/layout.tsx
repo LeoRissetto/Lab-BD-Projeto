@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
 
 import { ApiUser } from "@/lib/api";
+import { readUserFromStorage, writeUserToStorage } from "@/lib/auth-storage";
 import {
   Cat,
   Home,
@@ -39,7 +40,8 @@ const navItems = [
 export default function AdminLayout({ children }: Props) {
   const pathname = usePathname();
   const router = useRouter();
-  const isAuthRoute = pathname === "/admin/login";
+  const authRoutes = ["/admin/login", "/admin/register"];
+  const isAuthRoute = authRoutes.includes(pathname ?? "");
   const [hydrated, setHydrated] = useState(false);
   const [user, setUser] = useState<ApiUser | null>(null);
 
@@ -84,7 +86,7 @@ export default function AdminLayout({ children }: Props) {
   }, [hydrated, isAuthRoute, router, user]);
 
   function handleLogout() {
-    localStorage.removeItem("lt_user");
+    writeUserToStorage(null);
     setUser(null);
     router.push("/admin/login");
   }
@@ -154,14 +156,4 @@ export default function AdminLayout({ children }: Props) {
       </main>
     </div>
   );
-}
-
-function readUserFromStorage(): ApiUser | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = window.localStorage.getItem("lt_user");
-    return raw ? (JSON.parse(raw) as ApiUser) : null;
-  } catch {
-    return null;
-  }
 }

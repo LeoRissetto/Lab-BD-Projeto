@@ -40,3 +40,9 @@ def fetch_all(query: str, params=None) -> list[dict]:
         with conn.cursor() as cur:
             cur.execute(query, params)
             return cur.fetchall()
+
+
+def execute(query: str, params=None) -> None:
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute(query, params)

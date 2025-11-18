@@ -100,6 +100,7 @@ def atualizar_voluntario(cpf: str, data: AtualizarVoluntarioDTO):
                     (cpf, f),
                 )
 
+
     return {"status": "voluntário atualizado"}
 
 
