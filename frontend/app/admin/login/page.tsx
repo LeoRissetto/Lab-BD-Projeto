@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { api, ApiUser, getApiErrorMessage } from "@/lib/api";
+import { Button } from "@/components/ui/button";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -33,7 +34,13 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-primary/5">
+    <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-primary/5">
+      <div className="absolute right-6 top-6">
+        <Button asChild variant="outline" size="sm">
+          <Link href="/">Voltar para o início</Link>
+        </Button>
+      </div>
+
       <div className="w-full max-w-md rounded-xl bg-card shadow-lg p-8 border border-border">
         <h1 className="text-2xl font-semibold mb-2 text-center">
           Projeto Lar Temporário
@@ -91,7 +98,6 @@ export default function LoginPage() {
             </p>
           </div>
         </form>
-
       </div>
     </div>
   );

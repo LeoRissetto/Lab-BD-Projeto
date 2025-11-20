@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { Button } from "@/components/ui/button";
 import { LoginForm } from "@/components/auth/login-form";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -16,6 +17,12 @@ export default async function LoginPage() {
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-b from-transparent via-white/40 to-transparent px-6 py-16">
+      <div className="absolute right-6 top-6 z-10">
+        <Button asChild variant="outline" size="sm">
+          <Link href="/">Voltar para o início</Link>
+        </Button>
+      </div>
+
       <div className="pointer-events-none absolute inset-x-0 top-0 h-64 -translate-y-1/3">
         <div className="mx-auto h-full max-w-4xl blur-3xl">
           <div className="h-full w-full rounded-full bg-[radial-gradient(circle,_rgba(255,122,182,0.35),_transparent_60%)]" />
@@ -83,13 +90,6 @@ export default async function LoginPage() {
           <p className="mt-6 text-center text-xs text-muted-foreground">
             Em caso de dúvidas, fale com a coordenação do projeto.
           </p>
-
-          <Link
-            href="/"
-            className="mt-6 block text-center text-sm font-semibold text-primary underline-offset-4 hover:underline"
-          >
-            Voltar para o início
-          </Link>
         </div>
       </div>
     </main>
