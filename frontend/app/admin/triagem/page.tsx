@@ -156,9 +156,6 @@ export default function AdminTriagemPage() {
       <section className="grid gap-6 lg:grid-cols-[1.6fr,1fr]">
         <div className="rounded-2xl border border-border bg-card p-5">
           <h2 className="text-lg font-semibold">Histórico</h2>
-          <p className="text-sm text-muted-foreground">
-            Endpoint <code className="text-xs">/triagem</code> com junções.
-          </p>
 
           {loading ? (
             <p className="mt-4 text-sm text-muted-foreground">Carregando...</p>
@@ -197,9 +194,6 @@ export default function AdminTriagemPage() {
 
         <div className="rounded-2xl border border-border bg-card p-5">
           <h2 className="text-lg font-semibold">Registrar triagem</h2>
-          <p className="text-sm text-muted-foreground">
-            Salva diretamente na tabela <code className="text-xs">triagem</code>.
-          </p>
 
           <form className="mt-4 space-y-3" onSubmit={handleSubmit}>
             <div className="space-y-1.5">
@@ -210,7 +204,7 @@ export default function AdminTriagemPage() {
                 ) : (
                   <button
                     type="button"
-                    className="text-[11px] font-semibold text-primary underline underline-offset-4"
+                    className="text-[11px] font-semibold text-foreground underline underline-offset-4"
                     onClick={fetchPendentes}
                   >
                     Atualizar lista

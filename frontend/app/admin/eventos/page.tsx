@@ -129,7 +129,6 @@ export default function AdminEventosPage() {
       <section className="grid gap-6 lg:grid-cols-[1.6fr,1fr]">
         <div className="rounded-2xl border border-border bg-card p-5">
           <h2 className="text-lg font-semibold">Calendário</h2>
-          <p className="text-sm text-muted-foreground">Baseado em /eventos.</p>
 
           {loading ? (
             <p className="mt-4 text-sm text-muted-foreground">Carregando...</p>
@@ -212,7 +211,7 @@ export default function AdminEventosPage() {
                 <label className="text-sm font-medium text-muted-foreground">Endereço</label>
                 <button
                   type="button"
-                  className="text-[11px] font-semibold text-primary underline underline-offset-4"
+                  className="text-[11px] font-semibold text-foreground underline underline-offset-4"
                   onClick={fetchEnderecos}
                   disabled={submitting}
                 >

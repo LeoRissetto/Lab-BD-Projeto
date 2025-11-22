@@ -73,7 +73,6 @@ export default function AdminVoluntariosPage() {
         <div className="flex items-center justify-between gap-4">
           <div>
             <h2 className="text-lg font-semibold">Lista</h2>
-            <p className="text-sm text-muted-foreground">Endpoint /voluntarios</p>
           </div>
           <span className="text-xs text-muted-foreground">{voluntarios.length} registro(s)</span>
         </div>

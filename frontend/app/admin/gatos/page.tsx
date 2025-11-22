@@ -160,7 +160,6 @@ export default function AdminGatosPage() {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h2 className="text-xl font-semibold text-foreground">Histórico recente</h2>
-            <p className="text-sm text-muted-foreground">Dados vindos de /gatos.</p>
           </div>
           <Button onClick={openCreate}>Novo gato</Button>
         </div>

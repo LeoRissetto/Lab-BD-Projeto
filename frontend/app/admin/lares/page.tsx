@@ -130,7 +130,6 @@ export default function AdminLaresPage() {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold">Ocupação atual</h2>
-              <p className="text-sm text-muted-foreground">Endpoint /lares/ocupacao</p>
             </div>
             <span className="text-xs text-muted-foreground">
               {ocupacao.length} lar(es)
@@ -181,9 +180,6 @@ export default function AdminLaresPage() {
 
         <div className="rounded-2xl border border-border bg-card p-5">
           <h2 className="text-lg font-semibold">Novo lar</h2>
-          <p className="text-sm text-muted-foreground">
-            Insere dados na tabela <code className="text-xs">lar_temporario</code>.
-          </p>
 
           <form className="mt-4 space-y-3" onSubmit={handleSubmit}>
             <div className="space-y-1.5">
@@ -191,7 +187,7 @@ export default function AdminLaresPage() {
                 <label className="text-sm font-medium text-muted-foreground">Endereço</label>
                 <button
                   type="button"
-                  className="text-[11px] font-semibold text-primary underline underline-offset-4"
+                  className="text-[11px] font-semibold text-foreground underline underline-offset-4"
                   onClick={fetchEnderecos}
                   disabled={submitting}
                 >

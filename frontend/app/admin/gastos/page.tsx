@@ -139,9 +139,6 @@ export default function AdminGastosPage() {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold">Últimos lançamentos</h2>
-              <p className="text-sm text-muted-foreground">
-                Endpoint <code className="text-xs">/gastos</code>
-              </p>
             </div>
             <div className="text-right">
               <p className="text-xs text-muted-foreground">Total</p>
@@ -201,9 +198,6 @@ export default function AdminGastosPage() {
 
         <div className="rounded-2xl border border-border bg-card p-5">
           <h2 className="text-lg font-semibold">Registrar gasto</h2>
-          <p className="text-sm text-muted-foreground">
-            Permite monitorar custos dos lares cadastrados.
-          </p>
 
           <form className="mt-4 space-y-3" onSubmit={handleSubmit}>
             <div className="space-y-1.5">
@@ -211,7 +205,7 @@ export default function AdminGastosPage() {
                 <label className="text-sm font-medium text-muted-foreground">Lar</label>
                 <button
                   type="button"
-                  className="text-[11px] font-semibold text-primary underline underline-offset-4"
+                  className="text-[11px] font-semibold text-foreground underline underline-offset-4"
                   onClick={fetchLaresOptions}
                   disabled={submitting}
                 >

@@ -23,12 +23,6 @@ type LarOcupacao = {
   vagas_disponiveis: number;
 };
 
-type RollupRow = {
-  mes: string;
-  campanha: string;
-  total_doado: number;
-};
-
 type Evento = {
   id: number;
   nome: string;
@@ -54,7 +48,6 @@ export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [gatosDisponiveis, setGatosDisponiveis] = useState(0);
-  const [totalDoacoes, setTotalDoacoes] = useState(0);
   const [voluntariosAtivos, setVoluntariosAtivos] = useState(0);
   const [lares, setLares] = useState<LarOcupacao[]>([]);
   const [eventos, setEventos] = useState<Evento[]>([]);
@@ -65,10 +58,9 @@ export default function AdminDashboardPage() {
       setLoading(true);
       setError(null);
       try {
-        const [gatosRes, rollupRes, voluntariosRes, laresRes, eventosRes, logsRes] =
+        const [gatosRes, voluntariosRes, laresRes, eventosRes, logsRes] =
           await Promise.all([
             api.get<QueryResponse<GatoDisponivel>>("/queries/gatos_disponiveis"),
-            api.get<QueryResponse<RollupRow>>("/queries/doacoes_rollup"),
             api.get<Voluntario[]>("/voluntarios"),
             api.get<LarOcupacao[]>("/lares/ocupacao"),
             api.get<Evento[]>("/eventos/proximos"),
@@ -76,8 +68,6 @@ export default function AdminDashboardPage() {
           ]);
 
         setGatosDisponiveis(gatosRes.data.rows.length);
-        const totalRow = rollupRes.data.rows.find((row) => row.mes === "TOTAL");
-        setTotalDoacoes(Number(totalRow?.total_doado ?? 0));
         setVoluntariosAtivos(voluntariosRes.data.length);
         setLares(laresRes.data);
         setEventos(eventosRes.data);
@@ -111,27 +101,12 @@ export default function AdminDashboardPage() {
         <p className="text-sm text-muted-foreground">Carregando dados...</p>
       ) : (
         <>
-          <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <article className="rounded-2xl border border-border bg-card p-4 shadow-sm">
               <p className="text-xs text-muted-foreground uppercase tracking-wide">
                 Gatos disponíveis
               </p>
               <p className="mt-2 text-3xl font-semibold">{gatosDisponiveis}</p>
-              <p className="text-xs text-muted-foreground">
-                Consulta /queries/gatos_disponiveis
-              </p>
-            </article>
-
-            <article className="rounded-2xl border border-border bg-card p-4 shadow-sm">
-              <p className="text-xs text-muted-foreground uppercase tracking-wide">
-                Total doado (ROLLUP)
-              </p>
-              <p className="mt-2 text-3xl font-semibold">
-                R$ {totalDoacoes.toFixed(2)}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Endpoint /doacoes/rollup
-              </p>
             </article>
 
             <article className="rounded-2xl border border-border bg-card p-4 shadow-sm">
@@ -139,7 +114,6 @@ export default function AdminDashboardPage() {
                 Voluntários ativos
               </p>
               <p className="mt-2 text-3xl font-semibold">{voluntariosAtivos}</p>
-              <p className="text-xs text-muted-foreground">/voluntarios</p>
             </article>
 
             <article className="rounded-2xl border border-border bg-card p-4 shadow-sm">
@@ -147,7 +121,6 @@ export default function AdminDashboardPage() {
                 Lares monitorados
               </p>
               <p className="mt-2 text-3xl font-semibold">{lares.length}</p>
-              <p className="text-xs text-muted-foreground">/lares/ocupacao</p>
             </article>
           </section>
 
@@ -196,12 +169,9 @@ export default function AdminDashboardPage() {
 
             <div className="grid gap-4">
               <div className="rounded-2xl border border-border bg-card p-5">
-                <div className="mb-4">
-                  <h2 className="text-lg font-semibold">Próximos eventos</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Cronograma vindo de /eventos/proximos.
-                  </p>
-                </div>
+              <div className="mb-4">
+                <h2 className="text-lg font-semibold">Próximos eventos</h2>
+              </div>
 
                 {eventos.length === 0 ? (
                   <p className="text-sm text-muted-foreground">
@@ -229,12 +199,12 @@ export default function AdminDashboardPage() {
               </div>
 
               <div className="rounded-2xl border border-border bg-card p-5">
-                <div className="mb-4">
-                  <h2 className="text-lg font-semibold">Atividades recentes</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Últimos acessos registrados em log_table.
-                  </p>
-                </div>
+              <div className="mb-4">
+                <h2 className="text-lg font-semibold">Atividades recentes</h2>
+                <p className="text-sm text-muted-foreground">
+                  Últimos acessos registrados.
+                </p>
+              </div>
 
                 {logs.length === 0 ? (
                   <p className="text-sm text-muted-foreground">Nenhum log encontrado.</p>

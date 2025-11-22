@@ -132,9 +132,6 @@ export default function AdminAdocoesPage() {
       <section className="grid gap-6 lg:grid-cols-[1.6fr,1fr]">
         <div className="rounded-2xl border border-border bg-card p-5">
           <h2 className="text-lg font-semibold">Histórico recente</h2>
-          <p className="text-sm text-muted-foreground">
-            Dados vindos de <code className="text-xs">/adocoes</code>.
-          </p>
 
           {loading ? (
             <p className="mt-4 text-sm text-muted-foreground">Carregando...</p>
@@ -178,9 +175,6 @@ export default function AdminAdocoesPage() {
 
         <div className="rounded-2xl border border-border bg-card p-5">
           <h2 className="text-lg font-semibold">Registrar adoção</h2>
-          <p className="text-sm text-muted-foreground">
-            Chama a stored procedure <code className="text-xs">registrar_adocao</code>.
-          </p>
 
           <form className="mt-4 space-y-3" onSubmit={handleSubmit}>
             <div className="space-y-1.5">
@@ -188,7 +182,7 @@ export default function AdminAdocoesPage() {
                 <label className="text-sm font-medium text-muted-foreground">Gato disponível</label>
                 <button
                   type="button"
-                  className="text-[11px] font-semibold text-primary underline underline-offset-4"
+                  className="text-[11px] font-semibold text-foreground underline underline-offset-4"
                   onClick={fetchGatosDisponiveis}
                   disabled={submitting}
                 >
@@ -218,7 +212,7 @@ export default function AdminAdocoesPage() {
                 <span>Adotante</span>
                 <button
                   type="button"
-                  className="text-[11px] font-semibold text-primary underline underline-offset-4"
+                  className="text-[11px] font-semibold text-foreground underline underline-offset-4"
                   onClick={fetchAdotantes}
                   disabled={submitting}
                 >

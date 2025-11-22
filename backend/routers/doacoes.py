@@ -27,13 +27,25 @@ class AtualizarDoacaoDTO(BaseModel):
 def listar_doacoes():
     sql = """
         SELECT d.id,
+               d.pessoa_cpf,
                d.valor,
                d.data,
                d.forma_pagamento,
-               p.nome AS doador
+               p.nome AS nome
           FROM doacao d
           JOIN pessoa p ON p.cpf = d.pessoa_cpf
       ORDER BY d.data DESC;
+    """
+    return fetch_all(sql)
+
+
+@router.get("/doadores")
+def listar_doadores():
+    sql = """
+        SELECT cpf,
+               nome
+          FROM pessoa
+      ORDER BY nome;
     """
     return fetch_all(sql)
 

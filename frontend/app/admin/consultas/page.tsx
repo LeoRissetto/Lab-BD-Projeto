@@ -588,16 +588,6 @@ export default function AdminConsultasPage() {
                 </div>
               )}
 
-              {/* SQL DA CONSULTA */}
-              <div>
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase">
-                  SQL utilizado
-                </h3>
-                <pre className="mt-2 max-h-56 overflow-auto rounded-lg bg-muted p-3 text-xs font-mono whitespace-pre">
-                  {selected.sql.trim()}
-                </pre>
-              </div>
-
               {/* TABELA DE RESULTADO */}
               <div>
                 <h3 className="text-sm font-semibold text-muted-foreground uppercase">

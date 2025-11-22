@@ -73,7 +73,6 @@ export default function AdminVeterinariosPage() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold">Lista</h2>
-            <p className="text-sm text-muted-foreground">Endpoint /veterinarios</p>
           </div>
           <span className="text-xs text-muted-foreground">
             {veterinarios.length} registro(s)

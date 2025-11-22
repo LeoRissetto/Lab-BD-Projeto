@@ -45,28 +45,28 @@ export default function Home() {
   const featureHighlights = [
     {
       title: "Galeria viva",
-      description: "Cards animados contam a trajetória de cada gatinho resgatado.",
+      description: "Cards mostram gatos disponíveis para adoção.",
       tag: "Histórias reais",
       icon: Cat,
       colors: "from-[#ffd6f0] via-white to-white",
     },
     {
-      title: "Doações transparentes",
-      description: "Integração com Supabase garante registros verificados e auditáveis.",
+      title: "Facilidades",
+      description: "Relatórios diversos para Administradores",
       tag: "Confiança",
       icon: ShieldCheck,
       colors: "from-[#d5f7f1] via-white to-white",
     },
     {
       title: "Mutirões e visitas",
-      description: "Calendário integrado divulga ações presenciais e feirinhas.",
+      description: "Agenda administrativa registra eventos.",
       tag: "Agenda ativa",
       icon: SunMedium,
       colors: "from-[#fff1c9] via-white to-white",
     },
     {
       title: "Rede de carinho",
-      description: "Voluntários recebem alertas sobre necessidades urgentes e insumos.",
+      description: "Voluntários conseguem demonstrar seus interesses em adotar gatinhos.",
       tag: "Comunidade",
       icon: Heart,
       colors: "from-[#ffe0d7] via-white to-white",
@@ -113,13 +113,11 @@ export default function Home() {
             <div className="space-y-4">
               <h1 className="text-4xl leading-tight text-foreground sm:text-5xl lg:text-6xl">
                 <span className="bg-gradient-to-r from-[#ff7ab6] via-[#ffa69e] to-[#6fe4cf] bg-clip-text text-transparent">
-                  Um abrigo cheio de alegria para cada ronronar.
+                  Um abrigo cheio de alegria e amor.
                 </span>
               </h1>
-              <p className="max-w-2xl text-base leading-relaxed text-foreground/80 sm:text-lg">
-                Plataforma completa para conectar gatinhos resgatados a famílias
-                acolhedoras. Integramos FastAPI, PostgreSQL, Supabase e Next.js em
-                uma experiência com jeitinho de feira de adoção, porém 100% digital.
+              <p className="max-w-2xl text-base leading-relaxed text-foreground/80 sm:text-lg whitespace-nowrap">
+                Plataforma completa para conectar gatinhos resgatados a acolhedoras famílias.
               </p>
             </div>
 
@@ -176,76 +174,24 @@ export default function Home() {
 
       
 
-        <section className="mt-20 grid gap-10 lg:grid-cols-2">
-          <div className="rounded-[32px] border border-white/60 bg-white/80 p-8 shadow-2xl shadow-secondary/20 backdrop-blur">
-            <p className="text-xs font-semibold uppercase tracking-[0.45em] text-muted-foreground">
-              Jornada de adoção
-            </p>
-            <h3 className="mt-3 text-3xl text-foreground">Passo a passo acolhedor</h3>
-            <p className="mt-4 text-sm text-foreground/70">
-              Automatize as etapas e receba alertas sobre cada família interessada.
-            </p>
-            <div className="mt-8 space-y-5">
-              {adoptionSteps.map((step) => (
-                <div
-                  key={step.step}
-                  className="rounded-3xl border border-white/50 bg-white/60 p-5 shadow-lg shadow-primary/10"
-                >
-                  <div className="flex items-start gap-4">
-                    <span
-                      className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br ${step.gradient} text-base font-semibold text-foreground`}
-                    >
-                      {step.step}
-                    </span>
-                    <div>
-                      <h4 className="text-xl">{step.title}</h4>
-                      <p className="text-sm text-foreground/75">{step.description}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
+        <footer className="mt-20 rounded-[32px] border border-white/60 bg-white/80 p-8 text-sm text-foreground shadow-2xl shadow-primary/10 backdrop-blur">
+          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.35em] text-muted-foreground">
+                Desenvolvido com carinho
+              </p>
+              <h4 className="mt-2 text-xl font-semibold">
+                Leonardo Gueno • Luciano Filho • Pedro Zenatte • Rauany Secci
+              </h4>
+              <p className="mt-1 text-muted-foreground">
+                FastAPI, PostgreSQL, Supabase e Next.js trabalhando juntos para impulsionar adoções.
+              </p>
+            </div>
+            <div className="space-y-2 text-muted-foreground">
+              <p>Repositório: <a href="https://github.com/LeoRissetto/Lab-BD-Projeto" target="_blank" rel="noopener noreferrer" className="rounded bg-muted px-2 py-1 text-xs text-foreground underline-offset-2 hover:underline">Lab-BD-Projeto</a></p>
             </div>
           </div>
-
-          <div className="rounded-[32px] border border-white/60 bg-gradient-to-br from-white/85 via-white/75 to-white/90 p-8 shadow-2xl shadow-primary/15 backdrop-blur">
-            <p className="text-xs font-semibold uppercase tracking-[0.45em] text-muted-foreground">
-              Vamos juntos?
-            </p>
-            <h3 className="mt-3 text-3xl text-foreground">Impulsione sua ONG ou trabalho final</h3>
-            <p className="mt-4 text-sm text-foreground/75">
-              Use a área pública para inspirar adoções e o painel para controlar operações.
-              O projeto está pronto para demos, apresentações e implantação real.
-            </p>
-
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link
-                href="/gatos"
-                className="inline-flex flex-1 min-w-[160px] items-center justify-center gap-2 rounded-2xl border border-transparent bg-primary/90 px-5 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition hover:bg-primary"
-              >
-                <Heart className="h-4 w-4" />
-                Quero adotar
-              </Link>
-              <Link
-                href="/login"
-                className="inline-flex flex-1 min-w-[160px] items-center justify-center gap-2 rounded-2xl border border-secondary/50 bg-secondary/20 px-5 py-3 text-sm font-semibold text-foreground transition hover:bg-secondary/40"
-              >
-                <Gift className="h-4 w-4" />
-                Área administrativa
-              </Link>
-            </div>
-
-            <ul className="mt-8 space-y-3 text-sm text-foreground/80">
-              <li className="flex items-center gap-3 rounded-2xl border border-white/60 bg-white/70 px-4 py-3 shadow-md shadow-primary/10">
-                <Sparkles className="h-4 w-4 text-primary" />
-                Indicadores em tempo real e consultas analíticas.
-              </li>
-              <li className="flex items-center gap-3 rounded-2xl border border-white/60 bg-white/70 px-4 py-3 shadow-md shadow-secondary/10">
-                <PhoneCall className="h-4 w-4 text-secondary" />
-                Fluxo de contato rápido com adotantes interessados.
-              </li>
-            </ul>
-          </div>
-        </section>
+        </footer>
       </div>
     </main>
   );

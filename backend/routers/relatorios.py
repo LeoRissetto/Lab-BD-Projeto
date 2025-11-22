@@ -124,6 +124,31 @@ QUERIES: Dict[str, Dict[str, Any]] = {
         """,
     },
 
+    # 5b) GATOS DISPONÍVEIS PARA ADOÇÃO (usado na área pública e admin)
+    "gatos_disponiveis": {
+        "title": "Gatos disponíveis",
+        "description": "Mostra todos os gatos sem adoção registrada, incluindo dados da cidade de resgate.",
+        "topics": ["Gatos", "Adoções"],
+        "sql": """
+    SELECT
+        g.id,
+        g.nome,
+        g.idade,
+        g.cor,
+        g.raca,
+        e.cidade AS cidade_resgate,
+        e.estado AS estado_resgate
+    FROM gato g
+    LEFT JOIN endereco e ON e.id = g.endereco_resgate_id
+    WHERE NOT EXISTS (
+        SELECT 1
+          FROM adocao a
+         WHERE a.gato_id = g.id
+    )
+    ORDER BY g.nome;
+            """,
+    },
+
 
     # 6) OCUPAÇÃO DOS LARES TEMPORÁRIOS (bom para gráfico)
     #    → Relatório mais simples, ótimo p/ visualização em gráfico

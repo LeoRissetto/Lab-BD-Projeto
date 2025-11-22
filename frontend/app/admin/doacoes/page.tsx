@@ -9,10 +9,17 @@ import { api, getApiErrorMessage } from "@/lib/api";
 
 type Doacao = {
   id: number;
+  pessoa_cpf: string;
   valor: number;
   data: string;
-  nome: string;
+  nome?: string | null;
+  doador?: string | null;
   campanha: string | null;
+};
+
+type DoadorOption = {
+  cpf: string;
+  nome: string;
 };
 
 type FormState = {
@@ -31,6 +38,8 @@ const emptyForm: FormState = {
 
 export default function AdminDoacoesPage() {
   const [doacoes, setDoacoes] = useState<Doacao[]>([]);
+  const [doadores, setDoadores] = useState<DoadorOption[]>([]);
+  const [loadingDoadores, setLoadingDoadores] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
@@ -39,6 +48,7 @@ export default function AdminDoacoesPage() {
 
   useEffect(() => {
     fetchDoacoes();
+    fetchDoadores();
   }, []);
 
   async function fetchDoacoes() {
@@ -51,6 +61,18 @@ export default function AdminDoacoesPage() {
       setError(getApiErrorMessage(err, "Erro ao listar doações"));
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function fetchDoadores() {
+    setLoadingDoadores(true);
+    try {
+      const { data } = await api.get<DoadorOption[]>("/doacoes/doadores");
+      setDoadores(data);
+    } catch (err) {
+      setError(getApiErrorMessage(err, "Erro ao carregar doadores"));
+    } finally {
+      setLoadingDoadores(false);
     }
   }
 
@@ -115,7 +137,6 @@ export default function AdminDoacoesPage() {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold">Lançamentos</h2>
-              <p className="text-sm text-muted-foreground">/doacoes</p>
             </div>
             <div className="text-right">
               <p className="text-xs text-muted-foreground">Total</p>
@@ -144,7 +165,11 @@ export default function AdminDoacoesPage() {
                 {doacoes.map((doacao) => (
                   <TableRow key={doacao.id}>
                     <TableCell>{formatDate(doacao.data)}</TableCell>
-                    <TableCell>{doacao.nome}</TableCell>
+                    <TableCell>
+                      <span className="font-medium">
+                        {doacao.nome ?? doacao.doador ?? "—"}
+                      </span>
+                    </TableCell>
                     <TableCell>{doacao.campanha ?? "Livre"}</TableCell>
                     <TableCell>{formatCurrency(doacao.valor)}</TableCell>
                     <TableCell className="text-right">
@@ -165,19 +190,39 @@ export default function AdminDoacoesPage() {
 
         <div className="rounded-2xl border border-border bg-card p-5">
           <h2 className="text-lg font-semibold">Registrar doação</h2>
-          <p className="text-sm text-muted-foreground">
-            Operação básica no endpoint <code className="text-xs">/doacoes</code>.
-          </p>
 
           <form className="mt-4 space-y-3" onSubmit={handleSubmit}>
-            <label className="text-sm font-medium text-muted-foreground">
-              CPF
-              <Input
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between gap-3">
+                <label className="text-sm font-medium text-muted-foreground">Doador</label>
+                <button
+                  type="button"
+                  className="text-[11px] font-semibold text-foreground underline underline-offset-4 disabled:opacity-50"
+                  onClick={fetchDoadores}
+                  disabled={loadingDoadores}
+                >
+                  {loadingDoadores ? "Atualizando..." : "Atualizar lista"}
+                </button>
+              </div>
+              <select
                 required
+                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
                 value={form.pessoa_cpf}
                 onChange={(e) => handleChange("pessoa_cpf", e.target.value)}
-              />
-            </label>
+              >
+                <option value="">Selecione um doador</option>
+                {doadores.map((doador) => (
+                  <option key={doador.cpf} value={doador.cpf}>
+                    {doador.nome} — CPF {doador.cpf}
+                  </option>
+                ))}
+              </select>
+              {doadores.length === 0 && !loadingDoadores ? (
+                <p className="text-xs text-muted-foreground">
+                  Nenhum registro encontrado. Cadastre pessoas em outra tela antes de registrar doações.
+                </p>
+              ) : null}
+            </div>
 
             <label className="text-sm font-medium text-muted-foreground">
               Valor
