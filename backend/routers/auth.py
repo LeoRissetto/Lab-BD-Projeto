@@ -4,6 +4,7 @@ import hashlib
 import psycopg
 from database import fetch_all, get_conn
 from logger import registrar_log
+from typing import Optional
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -17,11 +18,11 @@ class RegisterDTO(BaseModel):
     login: str
     senha: str
     tipo: str
-    idoriginal: str | None = None
-    nome: str | None = None
-    crmv: str | None = None
-    especialidade: str | None = None
-    clinica: str | None = None
+    idoriginal: Optional[str] = None
+    nome: Optional[str] = None
+    crmv: Optional[str] = None
+    especialidade: Optional[str] = None
+    clinica: Optional[str] = None
 
 
 def _validate_tipo(tipo: str):

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import Optional
+
 
 from database import fetch_all, get_conn
 
@@ -14,7 +14,7 @@ class RegistrarAdocaoDTO(BaseModel):
     gato_id: int
     adotante_cpf: str
     data: str
-    motivo: Optional[str] = None
+    motivo: str | None = None
 
 
 # ---------------------------------
