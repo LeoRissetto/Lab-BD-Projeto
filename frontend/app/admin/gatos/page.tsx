@@ -51,17 +51,23 @@ export default function AdminGatosPage() {
   }, []);
 
   async function fetchGatos() {
-    setLoading(true);
-    setError(null);
-    try {
-      const { data } = await api.get<Gato[]>("/gatos");
-      setGatos(data);
-    } catch (err) {
-      setError(getApiErrorMessage(err, "Erro ao listar gatos"));
-    } finally {
-      setLoading(false);
-    }
+  setLoading(true);
+  setError(null);
+
+  try {
+    const role = localStorage.getItem("role") ?? "public";
+
+    const { data } = await api.get<Gato[]>("/gatos", {
+      params: { role },
+    });
+
+    setGatos(data);
+  } catch (err) {
+    setError(getApiErrorMessage(err, "Erro ao listar gatos"));
+  } finally {
+    setLoading(false);
   }
+}
 
   async function fetchEnderecos() {
     try {
