@@ -91,21 +91,6 @@ def register(data: RegisterDTO):
                         (data.idoriginal, data.nome, data.login),
                     )
 
-            try:
-                cur.execute(
-                    """
-                    INSERT INTO users (login, senha, tipo, idoriginal)
-                    VALUES (%s, %s, %s, %s)
-                    RETURNING userid, login, tipo
-                    """,
-                    (data.login, senha_md5, data.tipo, data.idoriginal),
-                )
-                user = cur.fetchone()
-            except psycopg.errors.UniqueViolation:
-                raise HTTPException(status_code=400, detail="Login já está em uso.")
-
-            # cria vinculação na tabela da função
-            if data.idoriginal:
                 if data.tipo == "VOLUNTARIO":
                     cur.execute(
                         "INSERT INTO voluntario (cpf) VALUES (%s) ON CONFLICT DO NOTHING",
@@ -125,6 +110,28 @@ def register(data: RegisterDTO):
                         """,
                         (data.idoriginal, data.crmv, data.especialidade, data.clinica),
                     )
+
+            try:
+                cur.execute(
+                    """
+                    INSERT INTO users (login, senha, tipo, idoriginal, nome, crmv, especialidade, clinica)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                    RETURNING userid, login, tipo
+                    """,
+                    (
+                        data.login,
+                        senha_md5,
+                        data.tipo,
+                        data.idoriginal,
+                        data.nome,
+                        data.crmv,
+                        data.especialidade,
+                        data.clinica,
+                    ),
+                )
+                user = cur.fetchone()
+            except psycopg.errors.UniqueViolation:
+                raise HTTPException(status_code=400, detail="Login já está em uso.")
 
             registrar_log(conn, user["userid"])
 

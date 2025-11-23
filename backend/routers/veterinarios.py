@@ -21,6 +21,12 @@ class VeterinarioDTO(BaseModel):
     clinica: Optional[str] = None
 
 
+class CriarVeterinarioDTO(PessoaDTO):
+    crmv: str
+    especialidade: Optional[str] = None
+    clinica: Optional[str] = None
+
+
 class AtualizarVeterinarioDTO(BaseModel):
     nome: Optional[str]
     telefone: Optional[str]
@@ -43,22 +49,26 @@ def listar_veterinarios():
 
 
 @router.post("/")
-def criar_veterinario(pessoa: PessoaDTO, vet: VeterinarioDTO):
+def criar_veterinario(data: CriarVeterinarioDTO):
+    pessoa_values = (data.cpf, data.nome, data.telefone, data.email, data.endereco_id)
+    vet_values = (data.cpf, data.crmv, data.especialidade, data.clinica)
+
     with get_conn() as conn:
         with conn.cursor() as cur:
             try:
                 cur.execute(
                     "INSERT INTO pessoa (cpf, nome, telefone, email, endereco_id) VALUES (%s, %s, %s, %s, %s)",
-                    (pessoa.cpf, pessoa.nome, pessoa.telefone, pessoa.email, pessoa.endereco_id),
+                    pessoa_values,
                 )
                 cur.execute(
                     "INSERT INTO veterinario (cpf, crmv, especialidade, clinica) VALUES (%s, %s, %s, %s)",
-                    (vet.cpf, vet.crmv, vet.especialidade, vet.clinica),
+                    vet_values,
                 )
             except Exception as e:
+                conn.rollback()
                 raise HTTPException(status_code=400, detail=str(e))
 
-    return {"status": "veterinário criado", "cpf": vet.cpf}
+    return {"status": "veterinário criado", "cpf": data.cpf}
 
 
 @router.put("/{cpf}")
