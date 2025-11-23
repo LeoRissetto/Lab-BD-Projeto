@@ -14,5 +14,5 @@ export async function logout() {
   }
 
   revalidatePath("/");
-  redirect("/login");
+  redirect("/admin/login");
 }

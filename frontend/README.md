@@ -20,7 +20,7 @@ Esses helpers já fazem o bridge de cookies necessário para que o estado de aut
 
 ### Login com Supabase Auth
 
-- Acesse `/login` para utilizar o formulário de autenticação (email/senha).
+- Acesse `/admin/login` para utilizar o formulário de autenticação (email/senha).
 - Usuários são gerenciados no painel do Supabase; após logar, o app redireciona para `/`.
 - Para sair, utilize o botão `Sair` exibido na home quando uma sessão está ativa.
 

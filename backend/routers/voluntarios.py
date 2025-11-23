@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Optional, List
-from database import fetch_all, get_conn
+from database import fetch_all
 
 router = APIRouter(prefix="/voluntarios", tags=["Voluntários"])
 
@@ -35,14 +35,18 @@ class AtualizarVoluntarioDTO(BaseModel):
 # ---------------------------------------
 
 @router.get("/")
-def listar_voluntarios():
+def listar_voluntarios(role: str = "PUBLIC"):
+    role_upper = role.upper()
+    if role_upper == "VOLUNTARIO":
+        return []
+
     sql = """
         SELECT v.cpf,
                p.nome,
                p.telefone,
                p.email,
                p.endereco_id,
-               array_agg(f.funcao) AS funcoes
+               COALESCE(array_remove(array_agg(f.funcao), NULL), ARRAY[]::text[]) AS funcoes
           FROM voluntario v
           JOIN pessoa p ON p.cpf = v.cpf
           LEFT JOIN funcao f ON f.voluntario_cpf = v.cpf

@@ -24,13 +24,20 @@ class GatoDTO(BaseModel):
 # -----------------------------
 
 @router.get("/")
-def listar_gatos(role: str = "public"):
-    if role == "admin":
-        sql = "SELECT * FROM vw_gatos_admin ORDER BY id"
-    elif role == "veterinario":
-        sql = "SELECT * FROM vw_gatos_veterinario ORDER BY data_hora DESC"
-    else:  # público
-        sql = "SELECT * FROM vw_gatos_basico ORDER BY nome"
+def listar_gatos():
+    sql = """
+        SELECT id,
+               nome,
+               idade,
+               data_resgate,
+               endereco_resgate_id,
+               cor,
+               raca,
+               condicao_saude,
+               adotado
+          FROM gato
+      ORDER BY nome;
+    """
     return fetch_all(sql)
 
 

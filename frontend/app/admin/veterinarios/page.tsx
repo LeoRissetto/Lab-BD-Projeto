@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { api, getApiErrorMessage } from "@/lib/api";
+import { readUserFromStorage } from "@/lib/auth-storage";
 
 type Veterinario = {
   cpf: string;
@@ -30,7 +31,11 @@ export default function AdminVeterinariosPage() {
     setLoading(true);
     setError(null);
     try {
-      const { data } = await api.get<Veterinario[]>("/veterinarios");
+      const user = readUserFromStorage();
+      const role = user?.tipo?.toLowerCase() ?? "public";
+      const { data } = await api.get<Veterinario[]>("/veterinarios", {
+        params: { role },
+      });
       setVeterinarios(data);
     } catch (err) {
       setError(getApiErrorMessage(err, "Erro ao carregar veterinários"));

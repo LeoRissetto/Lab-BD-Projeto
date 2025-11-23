@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { api, getApiErrorMessage } from "@/lib/api";
+import { readUserFromStorage } from "@/lib/auth-storage";
 
 type Voluntario = {
   cpf: string;
@@ -28,7 +29,11 @@ export default function AdminVoluntariosPage() {
     setLoading(true);
     setError(null);
     try {
-      const { data } = await api.get<Voluntario[]>("/voluntarios");
+      const user = readUserFromStorage();
+      const role = user?.tipo?.toLowerCase() ?? "public";
+      const { data } = await api.get<Voluntario[]>("/voluntarios", {
+        params: { role },
+      });
       setVoluntarios(data);
     } catch (err) {
       setError(getApiErrorMessage(err, "Erro ao carregar voluntários"));

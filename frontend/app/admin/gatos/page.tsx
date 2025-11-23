@@ -5,6 +5,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { api, getApiErrorMessage } from "@/lib/api";
+import { readUserFromStorage } from "@/lib/auth-storage";
 
 import { GatoFormValues, GatoModal } from "./modal";
 
@@ -55,7 +56,9 @@ export default function AdminGatosPage() {
   setError(null);
 
   try {
-    const role = localStorage.getItem("role") ?? "public";
+    const user = readUserFromStorage();
+    const tipo = user?.tipo?.toLowerCase();
+    const role = tipo === "admin" ? "admin" : tipo === "veterinario" ? "veterinario" : "public";
 
     const { data } = await api.get<Gato[]>("/gatos", {
       params: { role },

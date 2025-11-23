@@ -74,22 +74,17 @@ def register(data: RegisterDTO):
         with conn.cursor() as cur:
             # valida CPF se enviado
             if data.idoriginal:
-                cur.execute("SELECT cpf FROM pessoa WHERE cpf=%s", (data.idoriginal,))
-                cpf_exists = cur.fetchone()
-                if cpf_exists is None:
-                    if not data.nome:
-                        raise HTTPException(
-                            status_code=400,
-                            detail="CPF não encontrado na tabela pessoa. Informe o campo 'nome' para criá-lo automaticamente.",
-                        )
-                    cur.execute(
-                        """
-                        INSERT INTO pessoa (cpf, nome, email)
-                        VALUES (%s, %s, %s)
-                        ON CONFLICT DO NOTHING
-                        """,
-                        (data.idoriginal, data.nome, data.login),
-                    )
+                pessoa_nome = data.nome or data.login
+                cur.execute(
+                    """
+                    INSERT INTO pessoa (cpf, nome, email)
+                    VALUES (%s, %s, %s)
+                    ON CONFLICT (cpf) DO UPDATE
+                      SET nome = COALESCE(EXCLUDED.nome, pessoa.nome),
+                          email = COALESCE(EXCLUDED.email, pessoa.email)
+                    """,
+                    (data.idoriginal, pessoa_nome, data.login),
+                )
 
                 if data.tipo == "VOLUNTARIO":
                     cur.execute(

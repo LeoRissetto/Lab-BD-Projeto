@@ -336,7 +336,7 @@ export default function GatosPublicPage() {
           </div>
           <div className="flex flex-wrap gap-3">
             <Link
-              href="/login"
+              href="/admin/login"
               className="inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/20 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white transition hover:bg-white/30"
             >
               Área administrativa

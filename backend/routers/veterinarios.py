@@ -1,7 +1,8 @@
 from fastapi import APIRouter, HTTPException
+import psycopg
 from pydantic import BaseModel
 from typing import Optional
-from database import fetch_all, get_conn
+from database import get_conn
 
 router = APIRouter(prefix="/veterinarios", tags=["Veterinários"])
 
@@ -37,15 +38,29 @@ class AtualizarVeterinarioDTO(BaseModel):
 
 
 @router.get("/")
-def listar_veterinarios():
-    sql = """
+def listar_veterinarios(role: str = "PUBLIC"):
+    role_upper = role.upper()
+    if role_upper == "VETERINARIO":
+        return []
+
+    sql_view = "SELECT * FROM vw_veterinarios_visao ORDER BY nome"
+    sql_fallback = """
         SELECT v.cpf, p.nome, p.telefone, p.email, p.endereco_id,
                v.crmv, v.especialidade, v.clinica
           FROM veterinario v
           JOIN pessoa p ON p.cpf = v.cpf
       ORDER BY p.nome;
     """
-    return fetch_all(sql)
+
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute(f"SET LOCAL app.tipo_usuario = '{role_upper}'")
+            try:
+                cur.execute(sql_view)
+                return cur.fetchall()
+            except psycopg.errors.UndefinedTable:
+                cur.execute(sql_fallback)
+                return cur.fetchall()
 
 
 @router.post("/")

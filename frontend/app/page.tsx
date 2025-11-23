@@ -130,7 +130,7 @@ export default function Home() {
                 Ver gatos disponíveis
               </Link>
               <Link
-                href="/login"
+                href="/admin/login"
                 className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-white/80 px-5 py-3 text-sm font-semibold text-foreground backdrop-blur transition hover:border-primary hover:bg-white"
               >
                 <ShieldCheck className="h-4 w-4 text-secondary" />
