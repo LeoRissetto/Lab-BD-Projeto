@@ -30,7 +30,7 @@ def _validate_tipo(tipo: str):
     if tipo not in allowed:
         raise HTTPException(status_code=400, detail="Tipo de usuário inválido.")
 
-
+#rotas
 @router.post("/login")
 def login(data: LoginDTO):
     senha_md5 = hashlib.md5(data.senha.encode()).hexdigest()

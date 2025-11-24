@@ -11,7 +11,6 @@ class TriagemDTO(BaseModel):
     responsavel_cpf: str
     resultado: str | None = None
 
-
 @router.get("/")
 def listar_triagens():
     sql = """
@@ -27,7 +26,6 @@ def listar_triagens():
       ORDER BY t.data DESC;
     """
     return fetch_all(sql)
-
 
 @router.get("/adotante/{cpf}")
 def triagens_por_adotante(cpf: str):

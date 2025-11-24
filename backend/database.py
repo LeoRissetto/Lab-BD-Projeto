@@ -23,13 +23,9 @@ pool = ConnectionPool(
     max_size=5
 )
 
-
-
 @contextmanager
 def get_conn():
-    # pool.connection() retorna um **PSYCOPG Connection**, que aceita prepare_threshold
     with pool.connection() as conn:
-        # prepare_threshold precisa ser None para desativar prepared statements automáticos
         conn.prepare_threshold = None
         conn.row_factory = dict_row
         yield conn

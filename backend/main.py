@@ -20,9 +20,6 @@ from routers import (
 
 app = FastAPI()
 
-# ======================================================
-# 🚀 Habilitar CORS para permitir que o frontend acesse
-# ======================================================
 origins = ["*"]
 
 app.add_middleware(
@@ -33,9 +30,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ======================================================
-#     IMPORTANTE: Registrar os routers
-# ======================================================
+# Registrar os routers
 app.include_router(auth.router)
 app.include_router(gatos.router)
 app.include_router(adocoes.router)

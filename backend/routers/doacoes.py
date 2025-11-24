@@ -20,9 +20,7 @@ class AtualizarDoacaoDTO(BaseModel):
     forma_pagamento: Optional[str]
 
 
-# --------------------------
-# LISTAR DOAÇÕES
-# --------------------------
+#listar doacoes
 @router.get("/")
 def listar_doacoes():
     sql = """
@@ -50,9 +48,7 @@ def listar_doadores():
     return fetch_all(sql)
 
 
-# --------------------------
-# CRIAR DOAÇÃO
-# --------------------------
+#cria doacao
 @router.post("/")
 def criar_doacao(d: DoacaoDTO):
     sql = """
@@ -68,9 +64,7 @@ def criar_doacao(d: DoacaoDTO):
             return dict(zip(cols, novo))
 
 
-# --------------------------
-# ATUALIZAR DOAÇÃO
-# --------------------------
+#atualizar
 @router.put("/{id}")
 def atualizar_doacao(id: int, d: AtualizarDoacaoDTO):
     sql = """
@@ -95,9 +89,7 @@ def atualizar_doacao(id: int, d: AtualizarDoacaoDTO):
             return dict(zip(cols, atualizado))
 
 
-# --------------------------
-# DELETAR DOAÇÃO
-# --------------------------
+#deletar
 @router.delete("/{id}")
 def remover_doacao(id: int):
     sql = "DELETE FROM doacao WHERE id=%s RETURNING id"
@@ -110,9 +102,7 @@ def remover_doacao(id: int):
             return {"status": "doação removida", "id": id}
 
 
-# --------------------------
-# RELATÓRIO - RANKING DE DOADORES
-# --------------------------
+#ranking doadores
 @router.get("/ranking")
 def ranking_doadores():
     sql = """
@@ -128,9 +118,6 @@ def ranking_doadores():
     return fetch_all(sql)
 
 
-# --------------------------
-# RELATÓRIO - MÉDIA MÓVEL 3 MESES
-# --------------------------
 @router.get("/media-movel")
 def media_movel():
     sql = """

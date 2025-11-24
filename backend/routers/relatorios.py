@@ -4,15 +4,10 @@ from database import fetch_all
 
 router = APIRouter(prefix="/queries", tags=["Relatórios"])
 
-# -------------------------------------------------
-#  DICIONÁRIO DE RELATÓRIOS (slug -> metadados + SQL)
-# -------------------------------------------------
-# Cada entrada aqui vira um relatório no front.
-# -------------------------------------------------
 
 QUERIES: Dict[str, Dict[str, Any]] = {
     # 1) DOAÇÕES POR MÊS E CAMPANHA (ROLLUP)
-    #    → Usa GROUP BY ROLLUP  (Cube/Rollup/Grouping Sets)
+    # Usa GROUP BY ROLLUP  (Cube/Rollup/Grouping Sets)
     "doacoes_rollup": {
         "title": "Doações por mês e campanha",
         "description": "Exibe quanto foi doado em cada mês e quanto cada campanha arrecadou.",
@@ -34,7 +29,7 @@ QUERIES: Dict[str, Dict[str, Any]] = {
     },
 
     # 2) RANKING DE DOADORES (WINDOW FUNCTION via função)
-    #    → Usa fn_ranking_doadores() que tem RANK() OVER, SUM() OVER
+    # Usa fn_ranking_doadores() que tem RANK() OVER, SUM() OVER
     "ranking_doadores_window": {
         "title": "Ranking de doadores",
         "description": "Lista as pessoas que mais contribuíram com doações e mostra sua representatividade no total arrecadado.",
@@ -51,10 +46,8 @@ QUERIES: Dict[str, Dict[str, Any]] = {
             """,
     },
 
-
-
     # 3) RESUMO DE GASTOS POR LAR E POR TIPO (GROUPING SETS)
-    #    → Usa GROUPING SETS para detalhar por lar+tipo, por tipo e total geral.
+    # Usa GROUPING SETS para detalhar por lar+tipo, por tipo e total geral.
     "gastos_grouping_sets": {
         "title": "Gastos por lar temporário e categoria",
         "description": "Apresenta quanto cada lar temporário gastou, separado por categorias de despesas.",
@@ -92,7 +85,7 @@ QUERIES: Dict[str, Dict[str, Any]] = {
     },
 
     # 4) GASTO TOTAL POR GATO USANDO FUNÇÃO PL/PGSQL + CONTROLE
-    #    → Usa fn_gasto_total_gato() (FOR LOOP, IF)
+    # Usa fn_gasto_total_gato() (FOR LOOP, IF)
     "gasto_total_funcao": {
         "title": "Gasto total por gato",
         "description": "Mostra o gasto total acumulado para cada gato, incluindo cuidados e despesas gerais.",
@@ -151,7 +144,7 @@ QUERIES: Dict[str, Dict[str, Any]] = {
 
 
     # 6) OCUPAÇÃO DOS LARES TEMPORÁRIOS (bom para gráfico)
-    #    → Relatório mais simples, ótimo p/ visualização em gráfico
+    # Relatório mais simples, ótimo p/ visualização em gráfico
     "ocupacao_lares": {
         "title": "Ocupação dos lares temporários",
         "description": "Mostra a capacidade, número de gatos hospedados e vagas disponíveis em cada lar.",
@@ -179,10 +172,6 @@ QUERIES: Dict[str, Dict[str, Any]] = {
     },
 }
 
-
-# -------------------------------------------------
-#  ENDPOINT: LISTAR RESUMO DOS RELATÓRIOS
-# -------------------------------------------------
 @router.get("/")
 def listar_relatorios() -> List[Dict[str, Any]]:
     """
@@ -204,9 +193,6 @@ def listar_relatorios() -> List[Dict[str, Any]]:
     return result
 
 
-# -------------------------------------------------
-#  ENDPOINT: EXECUTAR UM RELATÓRIO ESPECÍFICO
-# -------------------------------------------------
 @router.get("/{slug}")
 def executar_relatorio(slug: str) -> Dict[str, Any]:
     query = QUERIES.get(slug)

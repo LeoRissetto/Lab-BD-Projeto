@@ -24,10 +24,7 @@ class ParticipanteDTO(BaseModel):
     evento_id: int
     pessoa_cpf: str
 
-
-# -----------------------------
-# CRUD BÁSICO
-# -----------------------------
+#CRUD
 @router.get("/")
 def listar_eventos():
     sql = """
@@ -92,9 +89,7 @@ def remover_evento(id: int):
             return {"status": "evento removido", "id": id}
 
 
-# -----------------------------
-# PRÓXIMOS EVENTOS
-# -----------------------------
+#proximos eventos
 @router.get("/proximos")
 def proximos_eventos():
     sql = """
@@ -113,9 +108,6 @@ def proximos_eventos():
     return fetch_all(sql)
 
 
-# -----------------------------
-# PARTICIPANTES
-# -----------------------------
 @router.post("/participantes")
 def adicionar_participante(p: ParticipanteDTO):
     sql = """

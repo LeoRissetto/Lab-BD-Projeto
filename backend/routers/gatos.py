@@ -6,9 +6,6 @@ from database import fetch_all, get_conn
 router = APIRouter(prefix="/gatos", tags=["Gatos"])
 
 
-# -----------------------------
-#  MODEL
-# -----------------------------
 class GatoDTO(BaseModel):
     nome: Optional[str]
     idade: Optional[int]
@@ -19,10 +16,7 @@ class GatoDTO(BaseModel):
     condicao_saude: Optional[str]
 
 
-# -----------------------------
-#  CRUD
-# -----------------------------
-
+#CRUD
 @router.get("/")
 def listar_gatos():
     sql = """

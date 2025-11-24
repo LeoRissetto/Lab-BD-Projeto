@@ -5,10 +5,6 @@ from database import fetch_all, get_conn
 
 router = APIRouter(prefix="/gastos", tags=["Gastos"])
 
-
-# -------------------------------
-# MODEL
-# -------------------------------
 class GastoDTO(BaseModel):
     lar_id: int
     tipo: str
@@ -24,10 +20,7 @@ class AtualizarGastoDTO(BaseModel):
     data: Optional[str]
     descricao: Optional[str]
 
-
-# -------------------------------
-# ROTA: LISTAR
-# -------------------------------
+#listar
 @router.get("/")
 def listar_gastos():
     sql = """
@@ -47,9 +40,7 @@ def listar_gastos():
     return fetch_all(sql)
 
 
-# -------------------------------
-# ROTA: CRIAR
-# -------------------------------
+#criar
 @router.post("/")
 def criar_gasto(g: GastoDTO):
     sql = """
@@ -68,9 +59,7 @@ def criar_gasto(g: GastoDTO):
                 raise HTTPException(status_code=400, detail=str(e))
 
 
-# -------------------------------
-# ROTA: ATUALIZAR
-# -------------------------------
+#atualizar
 @router.put("/{id}")
 def atualizar_gasto(id: int, g: AtualizarGastoDTO):
     sql = """
@@ -98,9 +87,7 @@ def atualizar_gasto(id: int, g: AtualizarGastoDTO):
             return dict(zip(cols, atualizado))
 
 
-# -------------------------------
-# ROTA: DELETAR
-# -------------------------------
+#deletar
 @router.delete("/{id}")
 def remover_gasto(id: int):
     sql = "DELETE FROM gasto WHERE id=%s RETURNING id"
@@ -114,9 +101,7 @@ def remover_gasto(id: int):
             return {"status": "gasto removido", "id": id}
 
 
-# -------------------------------
-# RELATÓRIO 1: GASTOS POR LAR
-# -------------------------------
+#gastos por lar
 @router.get("/por-lar")
 def gastos_por_lar():
     sql = """
@@ -133,9 +118,7 @@ def gastos_por_lar():
     return fetch_all(sql)
 
 
-# -------------------------------
-# RELATÓRIO 2: GASTOS POR TIPO
-# -------------------------------
+#gastos por tipo
 @router.get("/por-tipo")
 def gastos_por_tipo():
     sql = """

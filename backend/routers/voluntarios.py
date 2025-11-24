@@ -6,9 +6,6 @@ from database import fetch_all
 router = APIRouter(prefix="/voluntarios", tags=["Voluntários"])
 
 
-# ---------------------------------------
-# MODELOS
-# ---------------------------------------
 class PessoaDTO(BaseModel):
     cpf: str
     nome: str
@@ -29,11 +26,7 @@ class AtualizarVoluntarioDTO(BaseModel):
     endereco_id: Optional[int] = None
     funcoes: Optional[List[str]] = []
 
-
-# ---------------------------------------
-# ROTAS
-# ---------------------------------------
-
+#rotas
 @router.get("/")
 def listar_voluntarios(role: str = "PUBLIC"):
     role_upper = role.upper()

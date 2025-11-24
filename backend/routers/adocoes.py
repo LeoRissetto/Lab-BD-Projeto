@@ -6,10 +6,7 @@ from database import fetch_all, get_conn
 
 router = APIRouter(prefix="/adocoes", tags=["Adoções"])
 
-
-# ---------------------------------
-# DATA MODELS
-# ---------------------------------
+#data models
 class RegistrarAdocaoDTO(BaseModel):
     gato_id: int
     adotante_cpf: str
@@ -17,10 +14,7 @@ class RegistrarAdocaoDTO(BaseModel):
     motivo: Optional[str] = None
 
 
-# ---------------------------------
-# ROTAS
-# ---------------------------------
-
+# rotas
 @router.get("/")
 def listar_adocoes():
     sql = """
