@@ -82,5 +82,6 @@ Projeto desenvolvido a partir da matéria de Laborátório de Base de dados por:
 - Leonardo Rissetto
 - Luciano Lopez 
 - Pedro Zenatte
-- Rauany Secci <br>
+- Rauany Secci
+
 ONG: Lar Temporário São Carlos
