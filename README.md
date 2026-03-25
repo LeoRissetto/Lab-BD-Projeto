@@ -77,9 +77,10 @@ O backend espera as seguintes estruturas no PostgreSQL:
 - O frontend armazena o usuário autenticado localmente em `localStorage` (`lt_user`) e envia `X-User-Id` em todas as requisições.
 - O painel administrativo requer login.
 
-**Créditos**
+**Créditos** <br>
 Projeto desenvolvido a partir da matéria de Laborátório de Base de dados por: 
 - Leonardo Rissetto
 - Luciano Lopez 
 - Pedro Zenatte
 - Rauany Secci
+ONG: Lar Temporário São Carlos
